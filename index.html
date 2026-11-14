@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Weihnachten im LindGrün</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F3B2D'/%3E%3Cpath d='M16 5l6 8h-3l5 7h-4l4 6H8l4-6H8l5-7h-3z' fill='%23C6D89C'/%3E%3C/svg%3E">
+<style>
+:root{
+  --lind:#C6D89C;        /* Lindgrün, der Grundton der Seite */
+  --lind-hell:#DCE8BE;
+  --lind-tief:#6F8B45;
+  --moos:#4C6631;        /* Nebentext auf hellem Grund */
+  --tanne:#1F3B2D;       /* Tannengrün: Text und Nachthimmel */
+  --tanne-hell:#2C5240;
+  --schnee:#FBFAF3;
+  --hagebutte:#B5302F;   /* Rot für alles, was man antippen soll */
+  --hagebutte-tief:#8F2222;
+  --kerze:#E2A93B;
+  --linie:rgba(31,59,45,.18);
+  --serif:"Young Serif", "Iowan Old Style", Palatino, Georgia, serif;
+  --sans:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--lind);color:var(--tanne);font:400 17px/1.55 var(--sans)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.1;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--kerze);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Kopf ---------- */
+.nav{position:sticky;top:0;z-index:20;background:var(--tanne);color:var(--schnee)}
+.nav-in{display:flex;align-items:center;gap:14px;max-width:1040px;margin:0 auto;padding:0 20px;height:56px}
+.nav-links{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none;margin:0 -6px}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{flex:none;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15px;color:var(--lind-hell)}
+.nav-links a:hover{background:var(--tanne-hell);color:var(--schnee)}
+.ich{flex:none;background:var(--lind);color:var(--tanne);border:0;border-radius:999px;padding:7px 14px;font-weight:600;font-size:15px}
+.ich:hover{background:var(--schnee)}
+
+.hero{background:var(--tanne);color:var(--schnee);position:relative;overflow:hidden}
+.lichter{height:34px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='34' viewBox='0 0 180 34'%3E%3Cpath d='M0 4 Q45 26 90 4 T180 4' fill='none' stroke='%236F8B45' stroke-width='1.5'/%3E%3Cellipse cx='22' cy='17' rx='4.5' ry='6.5' fill='%23B5302F'/%3E%3Cellipse cx='45' cy='21.5' rx='4.5' ry='6.5' fill='%23E2A93B'/%3E%3Cellipse cx='68' cy='17' rx='4.5' ry='6.5' fill='%23FBFAF3'/%3E%3Cellipse cx='112' cy='17' rx='4.5' ry='6.5' fill='%23E2A93B'/%3E%3Cellipse cx='135' cy='21.5' rx='4.5' ry='6.5' fill='%23B5302F'/%3E%3Cellipse cx='158' cy='17' rx='4.5' ry='6.5' fill='%23C6D89C'/%3E%3C/svg%3E") repeat-x center top}
+.hero-grid{display:grid;gap:28px;padding-top:18px;padding-bottom:96px}
+.hero h1{font-size:clamp(46px,11vw,92px);letter-spacing:-.01em;color:var(--lind);line-height:.98}
+.hero-sub{margin-top:18px;font-size:19px;max-width:30em;color:var(--lind-hell)}
+.schlafen{margin-top:26px;font-family:var(--serif);font-size:clamp(24px,5vw,32px);color:var(--schnee)}
+.schlafen b{font-weight:400;color:var(--kerze)}
+.wer{margin-top:26px}
+.wer p{font-weight:600;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid currentColor;background:transparent;border-radius:999px;padding:8px 15px;min-height:42px;font-weight:600}
+.hero .chip{color:var(--lind-hell)}
+.hero .chip:hover{background:var(--tanne-hell)}
+.hero .chip[aria-pressed="true"]{background:var(--lind);border-color:var(--lind);color:var(--tanne)}
+.huegel{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:70px;display:block}
+
+/* Karte */
+.karte{position:relative}
+.karte svg{display:block;width:100%;height:auto;max-height:640px}
+.karte-kopf{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+.karte-kopf h2{font-size:22px;color:var(--schnee)}
+.uhr{font-variant-numeric:tabular-nums;font-weight:600;color:var(--kerze)}
+.autos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.auto{border-top:4px solid var(--c);padding-top:10px}
+.auto h3{font-size:19px;color:var(--schnee)}
+.auto .wer-faehrt{font-size:15px;color:var(--lind-hell);margin-top:2px}
+.auto .strecke{font-size:15px;margin-top:6px;color:var(--lind-hell)}
+.auto label{display:block;font-size:15px;font-weight:600;margin-top:10px}
+.auto input[type=time]{margin-top:4px;background:var(--tanne-hell);border:1.5px solid var(--lind-tief);border-radius:8px;padding:7px 9px;color:var(--schnee);min-height:42px;width:100%;max-width:130px;color-scheme:dark}
+.auto .ankunft{font-size:15px;margin-top:6px;color:var(--schnee)}
+.auto a{font-size:15px;display:inline-block;margin-top:6px;color:var(--lind)}
+.karte-fuss{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px}
+.karte-fuss p{font-size:14px;color:var(--lind-hell);flex:1;min-width:200px}
+.schnee{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30}
+.schnee[hidden]{display:none}
+.schnee i{position:absolute;top:-12px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(31,59,45,.10),0 1px 3px rgba(31,59,45,.28);animation:fall linear infinite;will-change:transform}
+@keyframes fall{from{transform:translate3d(0,0,0)}to{transform:translate3d(var(--dx),calc(100vh + 24px),0)}}
+.nochmal{position:absolute;top:6px;right:0;display:inline-flex;align-items:center;gap:7px;background:var(--tanne-hell);color:var(--schnee);border:1.5px solid var(--lind-tief);border-radius:999px;padding:7px 14px 7px 11px;min-height:42px;font-weight:600;font-size:15px}
+.nochmal:hover{background:var(--lind);color:var(--tanne);border-color:var(--lind)}
+.nochmal svg{width:18px;height:18px;display:block}
+.karte-bild{position:relative}
+
+/* ---------- Abschnitte ---------- */
+.abschnitt{padding:56px 0 8px}
+.abschnitt h2{font-size:clamp(34px,7vw,52px)}
+.kopf{display:grid;grid-template-columns:1fr auto;column-gap:14px;align-items:end}
+.kopf > div{display:contents}
+.kopf h2{grid-column:1;grid-row:1}
+.kopf .bild{grid-column:2;grid-row:1}
+.kopf .lead{grid-column:1 / -1;grid-row:2}
+.bild{flex:none;width:88px;height:88px;margin-bottom:-4px}
+.lead{margin-top:10px;max-width:38em;font-size:18px}
+.blatt{background:var(--schnee);border-radius:6px 22px 6px 22px;padding:20px;margin-top:22px;box-shadow:0 2px 0 var(--lind-tief)}
+
+.btn{background:var(--hagebutte);color:var(--schnee);border:0;border-radius:10px;padding:10px 18px;min-height:44px;font-weight:600}
+.btn:hover{background:var(--hagebutte-tief)}
+.btn.leise{background:transparent;color:var(--tanne);border:1.5px solid var(--tanne)}
+.btn.leise:hover{background:var(--lind-hell)}
+.hero .btn.leise{color:var(--schnee);border-color:var(--lind-tief)}
+.hero .btn.leise:hover{background:var(--tanne-hell)}
+.btn.klein{min-height:38px;padding:6px 12px;font-size:15px;border-radius:8px}
+.x{background:transparent;border:0;width:38px;height:38px;border-radius:8px;font-size:22px;line-height:1;color:var(--moos);flex:none}
+.x:hover{background:var(--lind-hell);color:var(--hagebutte)}
+.feld{background:#fff;border:1.5px solid var(--linie);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+.feld:focus{border-color:var(--tanne);outline:none;box-shadow:0 0 0 3px var(--lind)}
+select.feld{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231F3B2D' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+.leer{padding:18px 4px;color:var(--moos);font-weight:500}
+
+/* Mitbringliste */
+.neu{display:grid;gap:10px;grid-template-columns:1fr}
+.filter{display:flex;gap:6px;margin:18px 0 4px;flex-wrap:wrap;align-items:center}
+.filter button{background:transparent;border:1.5px solid var(--linie);border-radius:999px;padding:6px 14px;min-height:38px;font-weight:600;font-size:15px}
+.filter button[aria-pressed="true"]{background:var(--tanne);border-color:var(--tanne);color:var(--schnee)}
+.filter .zahl{margin-left:auto;font-size:15px;color:var(--moos);font-weight:500}
+.kat{font-size:20px;margin:22px 0 2px;display:flex;align-items:center;gap:8px}
+.kat::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--k, var(--lind-tief))}
+.liste{list-style:none;margin:0;padding:0}
+.liste li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--linie);flex-wrap:wrap}
+.liste li:last-child{border-bottom:0}
+.ding{flex:1;min-width:150px;font-weight:500;overflow-wrap:anywhere}
+.ding small{display:block;font-weight:400;font-size:14px;color:var(--moos)}
+.gepackt .ding span{text-decoration:line-through;text-decoration-color:var(--lind-tief);opacity:.6}
+.traeger{background:var(--lind);border:0;border-radius:999px;padding:6px 13px;min-height:38px;font-weight:600;font-size:15px}
+.traeger:hover{background:var(--lind-hell)}
+.pack{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500}
+.pack input{width:20px;height:20px;accent-color:var(--tanne)}
+
+/* Essensplan */
+.tag{display:grid;grid-template-columns:76px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid var(--linie)}
+.tag:last-child{border-bottom:0}
+.tag:first-child{padding-top:0}
+.datum{font-family:var(--serif);line-height:1}
+.datum b{font-weight:400;font-size:40px;display:block}
+.datum span{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--moos)}
+.tag h3{font-size:19px;margin-bottom:8px}
+.tag.fest h3{color:var(--hagebutte)}
+.mahlzeiten{display:grid;gap:8px;align-items:start}
+.mahl{display:block;width:100%;text-align:left;background:var(--lind-hell);border:0;border-radius:10px;padding:10px 12px;min-height:54px}
+.mahl:hover{background:var(--lind)}
+.mahl .slot{font-size:14px;font-weight:600;color:var(--moos);display:block}
+.mahl .gericht{font-weight:600;overflow-wrap:anywhere}
+.mahl .details{display:block;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:2px}
+.mahl .koch{font-size:14px;display:block;margin-top:4px;color:var(--moos);font-weight:600}
+.mahl.offen{background:transparent;box-shadow:inset 0 0 0 1.5px var(--linie)}
+.mahl.offen .gericht{font-weight:500;color:var(--moos)}
+.mahl.offen:hover{background:var(--lind-hell)}
+
+/* Zimmer */
+.zimmer{display:grid;gap:16px;grid-template-columns:1fr}
+.zi h3{font-size:22px}
+.zi p{font-size:14px;color:var(--moos)}
+.bett{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:12px;background:var(--tanne);border-radius:14px 14px 8px 8px;padding:10px 3px 3px}
+.kissen{background:var(--schnee);border:0;border-radius:10px 10px 5px 5px;min-height:84px;padding:8px;font-weight:600;font-size:17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.kissen:hover{background:var(--lind-hell)}
+.kissen.frei{color:var(--moos);font-weight:500;font-size:15px}
+.kissen.ich{background:var(--lind)}
+.kissen::before{content:"";width:46px;height:10px;border-radius:5px;background:var(--lind-hell);margin-bottom:6px}
+.kissen.ich::before{background:var(--schnee)}
+.ohne{margin-top:18px;font-weight:500}
+
+/* Programm */
+.ideen li{align-items:flex-start}
+.stimme{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:58px;min-height:58px;border-radius:12px;border:1.5px solid var(--linie);background:transparent;font-weight:700;font-size:20px;line-height:1.1}
+.stimme small{font-size:12px;font-weight:600}
+.stimme[aria-pressed="true"]{background:var(--hagebutte);border-color:var(--hagebutte);color:var(--schnee)}
+.stimme:hover{border-color:var(--hagebutte)}
+.vorschlaege{margin-top:16px}
+.vorschlaege p{font-size:15px;font-weight:600;margin-bottom:8px}
+.vorschlaege .chip{font-weight:500;font-size:15px;border-color:var(--linie);border-style:dashed}
+.vorschlaege .chip:hover{background:var(--lind-hell);border-style:solid}
+.zeile{display:flex;gap:10px}
+.zeile .feld{flex:1}
+
+/* Haus */
+.haus{display:grid;gap:22px;grid-template-columns:1fr;margin-top:22px}
+.haus dl{margin:0}
+.haus dt{font-family:var(--serif);font-size:19px;margin-top:16px}
+.haus dt:first-child{margin-top:0}
+.haus dd{margin:2px 0 0}
+.kontakt{background:var(--tanne);color:var(--schnee);border-radius:22px 6px 22px 6px;padding:22px;align-self:start}
+.kontakt h3{font-size:24px;color:var(--lind)}
+.kontakt p{margin-top:8px}
+.kontakt a{color:var(--lind)}
+.kontakt .btn{display:inline-block;text-decoration:none;margin-top:14px;color:var(--schnee)}
+
+/* Eckdaten + Pinnwand */
+.eck{list-style:none;margin:0;padding:0}
+.eck li{border-bottom:1px solid var(--linie)}
+.eck li:last-child{border-bottom:0}
+.eck button{display:grid;grid-template-columns:1fr;gap:2px;width:100%;text-align:left;background:transparent;border:0;padding:12px 4px;border-radius:8px}
+.eck button:hover{background:var(--lind-hell)}
+.eck .frage{font-size:14px;font-weight:600;color:var(--moos)}
+.eck .antwort{font-weight:600;overflow-wrap:anywhere}
+.eck .antwort.offen{font-weight:500;color:var(--moos)}
+.zettel{display:grid;gap:14px;grid-template-columns:1fr;margin-top:18px}
+.zettel article{background:#FFF6D6;padding:16px 16px 12px;border-radius:3px;box-shadow:0 2px 0 rgba(31,59,45,.25);position:relative}
+.zettel article:nth-child(3n+2){background:#FBE3DF}
+.zettel article:nth-child(3n){background:var(--lind-hell)}
+.zettel p{white-space:pre-wrap;overflow-wrap:anywhere;padding-right:30px}
+.zettel footer{font-size:14px;color:var(--moos);margin-top:10px;font-weight:500}
+.zettel .x{position:absolute;top:4px;right:4px}
+textarea.feld{min-height:84px;resize:vertical}
+
+/* Dialog + Toast */
+dialog{border:0;border-radius:18px;padding:22px;max-height:calc(100dvh - 32px);overflow:auto;width:min(440px,calc(100vw - 32px));background:var(--schnee);color:var(--tanne)}
+dialog::backdrop{background:rgba(31,59,45,.6)}
+dialog h3{font-size:24px;margin-bottom:6px}
+dialog .hinweis{font-size:15px;color:var(--moos);margin-bottom:14px}
+dialog label{display:block;font-weight:600;font-size:15px;margin:14px 0 6px}
+dialog .chip{color:var(--tanne);border-color:var(--linie)}
+dialog .chip:hover{background:var(--lind-hell)}
+dialog .chip[aria-pressed="true"]{background:var(--tanne);border-color:var(--tanne);color:var(--schnee)}
+.dlg-fuss{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:22px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--tanne);color:var(--schnee);padding:10px 12px 10px 18px;border-radius:12px;display:flex;align-items:center;gap:12px;z-index:50;max-width:calc(100vw - 24px);box-shadow:0 6px 24px rgba(31,59,45,.35)}
+.toast[hidden]{display:none}
+.toast button{background:transparent;border:1.5px solid var(--lind-tief);color:var(--lind);border-radius:8px;padding:6px 12px;font-weight:600;min-height:36px}
+
+.status{font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--lind-hell)}
+.status::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--s,#999)}
+.status[data-s="live"]{--s:#3C8B4D}
+.status[data-s="demo"]{--s:var(--kerze)}
+.status[data-s="aus"]{--s:var(--hagebutte)}
+.demo-hinweis{background:#FFF6D6;border-left:5px solid var(--kerze);padding:12px 16px;border-radius:4px;margin-top:18px;font-size:15px}
+.demo-hinweis[hidden]{display:none}
+.demo-knoepfe{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+body.gesperrt main section{display:none}
+.sperre{margin-top:36px;font-size:17px}
+.neu .art{display:flex;gap:6px;flex-wrap:wrap}
+.art button,.wahl2 button{background:transparent;border:1.5px solid var(--linie);border-radius:999px;padding:6px 14px;min-height:40px;font-weight:600;font-size:15px}
+.art button[aria-pressed="true"],.wahl2 button[aria-pressed="true"]{background:var(--tanne);border-color:var(--tanne);color:var(--schnee)}
+.traeger.dort{background:#FFF6D6}
+.eck .antwort{white-space:pre-wrap}
+.blatt.schmal{padding-top:8px;padding-bottom:8px}
+.posten{flex:1;min-width:0;display:block;text-align:left;background:transparent;border:0;padding:4px;border-radius:8px}
+.posten:hover{background:var(--lind-hell)}
+.posten b{display:block;font-weight:600;overflow-wrap:anywhere}
+.posten small{display:block;font-size:14px;color:var(--moos)}
+.betrag{flex:none;font-weight:700;font-variant-numeric:tabular-nums}
+.bilanz{margin-top:20px;padding-top:18px;border-top:2px solid var(--tanne)}
+.bilanz h3{font-size:20px;margin:16px 0 6px}
+.bilanz h3:first-child{margin-top:0}
+.bilanz ul{list-style:none;margin:0;padding:0}
+.bilanz li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--linie)}
+.bilanz li:last-child{border-bottom:0}
+.bilanz .plus{color:#2E6B3B;font-weight:700}
+.bilanz .minus{color:var(--hagebutte);font-weight:700}
+.bilanz .summe{font-family:var(--serif);font-size:26px}
+.fehler{color:var(--hagebutte);font-weight:600;font-size:15px;margin-top:12px}
+.fehler:empty{display:none}
+.wunsch h3{font-size:24px}
+.wunsch > p{margin:6px 0 14px;max-width:36em}
+.wunsch .liste{margin-top:14px}
+.erledigt .ding span{text-decoration:line-through;opacity:.6}
+.marke{font-size:13px;font-weight:700;background:var(--lind);border-radius:999px;padding:3px 10px}
+footer.ende .werkzeug{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+footer.ende{padding:44px 0 90px;font-size:15px}
+footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+
+@media (max-width:639px){
+  #bringListe .ding{flex:1 1 calc(100% - 50px);min-width:0}
+  #bringListe .x{order:1}
+  #bringListe li > :not(.ding):not(.x){order:2}
+}
+@media (min-width:640px){
+  .neu{grid-template-columns:1fr 190px auto}
+  .neu > .art{grid-column:1 / -1;grid-row:2}
+  .zimmer{grid-template-columns:1fr 1fr}
+  .zettel{grid-template-columns:1fr 1fr}
+  .mahlzeiten.drei{grid-template-columns:repeat(3,1fr)}
+  .blatt{padding:28px}
+  .bild{width:128px;height:128px}
+  .kopf{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+  .kopf > div{display:block}
+}
+@media (min-width:900px){
+  .hero-grid{grid-template-columns:1fr 1fr;gap:48px;align-items:start;padding-top:30px}
+  .hero-grid > div:first-child{position:sticky;top:86px}
+  .haus{grid-template-columns:1.5fr 1fr}
+  .zettel{grid-template-columns:1fr 1fr 1fr}
+  .zimmer{grid-template-columns:repeat(4,1fr)}
+  .haus dl{columns:2;column-gap:36px}
+  .haus dl > div{break-inside:avoid;padding-bottom:16px}
+  .haus dt{margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .schnee{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="schnee" id="schnee" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <nav class="nav-links" aria-label="Bereiche">
+      <a href="#mitbringen">Mitbringen</a>
+      <a href="#essen">Essen</a>
+      <a href="#zimmer">Zimmer</a>
+      <a href="#programm">Programm</a>
+      <a href="#kosten">Kosten</a>
+      <a href="#haus">Das Haus</a>
+      <a href="#infos">Infos</a>
+    </nav>
+    <button class="ich" id="ichBtn" type="button">Wer bist du?</button>
+  </div>
+</header>
+
+<section class="hero" id="anfahrt">
+  <div class="lichter" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Weihnachten im LindGrün</h1>
+      <p class="hero-sub">22. bis 27. Dezember 2026 in Lind in der Eifel. Sieben Leute, zwei Autos, ein Haus mit Sauna.</p>
+      <p class="schlafen" id="schlafen"></p>
+      <div class="wer">
+        <p id="werFrage">Wer bist du? Tipp deinen Namen an, dann weiß die Seite, wer was einträgt.</p>
+        <div class="chips" id="werChips" role="group" aria-labelledby="werFrage"></div>
+      </div>
+    </div>
+
+    <div class="karte">
+      <div class="karte-kopf">
+        <h2>Zwei Autos, ein Ziel</h2>
+        <span class="uhr" id="uhr" aria-live="off"></span>
+      </div>
+      <div class="karte-bild">
+        <svg id="karte" viewBox="0 0 560 600" role="img" aria-label="Karte mit den beiden Anfahrtsstrecken von Essen und von Dietzenbach nach Lind in der Eifel"></svg>
+        <button class="nochmal" id="nochmal" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v5h5"/></svg>Noch mal fahren</button>
+      </div>
+      <div class="autos">
+        <div class="auto" style="--c:var(--hagebutte)">
+          <h3>Aus Essen</h3>
+          <p class="wer-faehrt">Anja, Josephine, Cornelis, Jonathan</p>
+          <p class="strecke">ca. 165 km über Köln und die A61, knapp 2 Stunden</p>
+          <label for="abEssen">Abfahrt</label>
+          <input type="time" id="abEssen" data-auto="essen">
+          <p class="ankunft" id="anEssen"></p>
+          <a href="https://www.google.com/maps/dir/?api=1&origin=Essen&destination=Nitzer+Stra%C3%9Fe+4%2C+56729+Lind&travelmode=driving" target="_blank" rel="noopener">Route in Google Maps</a>
+        </div>
+        <div class="auto" style="--c:var(--kerze)">
+          <h3>Aus Dietzenbach</h3>
+          <p class="wer-faehrt">Gunda, Tabea, Tom</p>
+          <p class="strecke">ca. 165 km über Limburg und Koblenz, knapp 2 Stunden</p>
+          <label for="abDietz">Abfahrt</label>
+          <input type="time" id="abDietz" data-auto="dietz">
+          <p class="ankunft" id="anDietz"></p>
+          <a href="https://www.google.com/maps/dir/?api=1&origin=Dietzenbach&destination=Nitzer+Stra%C3%9Fe+4%2C+56729+Lind&travelmode=driving" target="_blank" rel="noopener">Route in Google Maps</a>
+        </div>
+      </div>
+      <div class="karte-fuss">
+        <p>Kilometer und Fahrzeiten sind geschätzt. Tragt eure Abfahrtszeit ein, dann zeigt die Karte, wer zuerst da ist.</p>
+      </div>
+    </div>
+  </div>
+  <svg class="huegel" viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 70V44c90-26 190-30 300-8s200 12 300-10 220-24 330-2 190 18 270 4v42z" fill="#C6D89C"/>
+  </svg>
+</section>
+
+<main>
+<div class="wrap"><div class="demo-hinweis sperre" id="sperre" hidden></div></div>
+<section class="abschnitt" id="mitbringen">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Mitbringliste</h2>
+    <p class="lead">Schreib auf, was wir brauchen, und trag dich ein, wenn du etwas mitbringst. Was wir erst vor Ort besorgen, landet auf der Einkaufsliste.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><rect x="18" y="54" width="56" height="48" rx="4" fill="#B5302F"/><rect x="14" y="44" width="64" height="15" rx="4" fill="#8F2222"/><rect x="41" y="44" width="10" height="58" fill="#E2A93B"/><path d="M46 44C34 22 18 30 25 39c4 5 14 5 21 5zM46 44c12-22 28-14 21-5-4 5-14 5-21 5z" fill="#E2A93B"/><rect x="71" y="74" width="34" height="28" rx="3" fill="#1F3B2D"/><rect x="68" y="66" width="40" height="11" rx="3" fill="#2C5240"/><rect x="85" y="66" width="6" height="36" fill="#FBFAF3"/><path d="M88 66c-7-12-16-6-12-1 3 3 8 2 12 1zM88 66c7-12 16-6 12-1-3 3-8 2-12 1z" fill="#FBFAF3"/></svg></div>
+    <div class="demo-hinweis" id="demoHinweis" hidden>Die Seite läuft gerade im Demo-Modus: Einträge bleiben nur auf diesem Gerät. Sobald die Datenbank-Adresse eingetragen ist, sehen alle dasselbe.
+      <span class="demo-knoepfe"><button class="btn leise klein" type="button" id="demoFuellen">Beispiele laden</button> <button class="btn leise klein" type="button" id="demoLeeren">Alles leeren</button></span></div>
+    <div class="blatt">
+      <div class="neu" id="bringForm">
+        <div><label class="sr" for="bringText">Was brauchen wir?</label>
+          <input class="feld" id="bringText" maxlength="120" placeholder="Was brauchen wir? z. B. Raclette-Käse" autocomplete="off"></div>
+        <div><label class="sr" for="bringKat">Kategorie</label>
+          <select class="feld" id="bringKat"></select></div>
+        <div class="art" id="bringArt" role="group" aria-label="Mitbringen oder vor Ort kaufen">
+          <button type="button" data-art="mit" aria-pressed="true">Bringt jemand mit</button>
+          <button type="button" data-art="dort" aria-pressed="false">Kaufen wir dort</button>
+        </div>
+        <button class="btn" type="button" id="bringBtn">Auf die Liste</button>
+      </div>
+      <div class="filter" role="group" aria-label="Liste filtern">
+        <button type="button" data-f="alle" aria-pressed="true">Alles</button>
+        <button type="button" data-f="offen" aria-pressed="false">Noch offen</button>
+        <button type="button" data-f="ich" aria-pressed="false">Bringe ich mit</button>
+        <button type="button" data-f="kauf" aria-pressed="false">Einkaufsliste</button>
+        <span class="zahl" id="bringZahl"></span>
+      </div>
+      <div id="bringListe"></div>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="essen">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Essensplan</h2>
+    <p class="lead">Tipp eine Mahlzeit an und trag ein, was es gibt und wer sich darum kümmert.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><path d="M42 30c-7-7 7-11 0-20M60 26c-7-7 7-11 0-20M78 30c-7-7 7-11 0-20" fill="none" stroke="#FBFAF3" stroke-width="4.5" stroke-linecap="round"/><rect x="8" y="66" width="18" height="9" rx="4.5" fill="#1F3B2D"/><rect x="94" y="66" width="18" height="9" rx="4.5" fill="#1F3B2D"/><path d="M24 58h72v28a16 16 0 0 1-16 16H40a16 16 0 0 1-16-16z" fill="#B5302F"/><path d="M28 54a32 16 0 0 1 64 0z" fill="#1F3B2D"/><circle cx="60" cy="38" r="5.5" fill="#E2A93B"/><rect x="18" y="52" width="84" height="10" rx="5" fill="#8F2222"/><path d="M36 74v14M46 74v14" stroke="#8F2222" stroke-width="3" stroke-linecap="round"/></svg></div>
+    <div class="blatt schmal"><ul class="eck" id="essenHinweis"></ul></div>
+    <div class="blatt" id="essenPlan"></div>
+  </div>
+</section>
+
+<section class="abschnitt" id="zimmer">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Zimmer</h2>
+    <p class="lead">Vier Doppelzimmer, jedes mit eigenem Bad. Tipp ein Kissen an, um es zu belegen.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><path d="M97 10a15 15 0 1 0 11 24 12 12 0 0 1-11-24z" fill="#E2A93B"/><circle cx="72" cy="22" r="2.2" fill="#FBFAF3"/><circle cx="58" cy="10" r="1.8" fill="#FBFAF3"/><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><rect x="12" y="38" width="38" height="46" rx="9" fill="#1F3B2D"/><rect x="12" y="60" width="10" height="44" rx="3" fill="#1F3B2D"/><rect x="18" y="70" width="92" height="22" rx="5" fill="#FBFAF3"/><rect x="26" y="57" width="28" height="17" rx="8" fill="#FBFAF3"/><path d="M54 64h48a8 8 0 0 1 8 8v16H54z" fill="#B5302F"/><path d="M54 64h10v24H54z" fill="#8F2222"/><rect x="18" y="88" width="92" height="8" rx="3" fill="#1F3B2D"/><rect x="100" y="92" width="10" height="12" rx="3" fill="#1F3B2D"/></svg></div>
+    <div class="blatt">
+      <div class="zimmer" id="zimmerGrid"></div>
+      <p class="ohne" id="ohneBett"></p>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="programm">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Programm und Ausflüge</h2>
+    <p class="lead">Sammelt Ideen und stimmt ab. Was die meisten Stimmen hat, steht oben.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><path d="M74 22c-6-6 6-9 0-17" fill="none" stroke="#FBFAF3" stroke-width="4.5" stroke-linecap="round"/><rect x="70" y="26" width="9" height="20" fill="#8F2222"/><rect x="24" y="54" width="62" height="48" fill="#C98F3C"/><path d="M24 66h62M24 78h62M24 90h62" stroke="#A8742B" stroke-width="2"/><path d="M12 58L55 24l43 34z" fill="#1F3B2D"/><path d="M33 42L55 24l22 18c-6 4-10-2-15 0s-9 4-14 0-9 3-15 0z" fill="#FBFAF3"/><rect x="44" y="66" width="22" height="36" rx="2" fill="#8F2222"/><rect x="50" y="72" width="10" height="10" rx="2" fill="#E2A93B"/><circle cx="62" cy="88" r="1.8" fill="#E2A93B"/><path d="M106 86l8-18" stroke="#1F3B2D" stroke-width="3.5" stroke-linecap="round"/><path d="M92 84h20l-3 18H95z" fill="#6F8B45"/><rect x="92" y="88" width="20" height="3" fill="#4C6631"/></svg></div>
+    <div class="blatt">
+      <div class="zeile" id="ideeForm">
+        <label class="sr" for="ideeText">Idee</label>
+        <input class="feld" id="ideeText" maxlength="120" placeholder="Deine Idee, z. B. Fackelwanderung" autocomplete="off">
+        <button class="btn" type="button" id="ideeBtn">Vorschlagen</button>
+      </div>
+      <ul class="liste ideen" id="ideenListe"></ul>
+      <div class="vorschlaege" id="vorschlaege">
+        <p>Noch ohne Idee? Antippen übernimmt den Vorschlag:</p>
+        <div class="chips" id="vorschlagChips"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="kosten">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Kosten</h2>
+    <p class="lead">Trag ein, was du ausgelegt hast. Die Seite rechnet aus, wer am Ende wem wie viel gibt.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><path d="M26 14h46v80l-7.670-6-7.670 6-7.670-6-7.670 6-7.670-6-7.650 6z" fill="#FBFAF3"/><path d="M35 30h28M35 42h28M35 54h18" stroke="#6F8B45" stroke-width="3.5" stroke-linecap="round"/><path d="M35 70h28" stroke="#B5302F" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="90" cy="98" rx="17" ry="6.5" fill="#C98F3C"/><ellipse cx="90" cy="93" rx="17" ry="6.5" fill="#E2A93B"/><ellipse cx="90" cy="88" rx="17" ry="6.5" fill="#C98F3C"/><ellipse cx="90" cy="83" rx="17" ry="6.5" fill="#E2A93B"/><ellipse cx="86" cy="76" rx="17" ry="6.5" fill="#C98F3C"/><ellipse cx="86" cy="71" rx="17" ry="6.5" fill="#E2A93B"/><ellipse cx="86" cy="71" rx="10" ry="3.200" fill="none" stroke="#C98F3C" stroke-width="1.5"/></svg></div>
+    <div class="blatt">
+      <button class="btn" type="button" id="kostenBtn">Ausgabe eintragen</button>
+      <ul class="liste" id="kostenListe"></ul>
+      <div class="bilanz" id="kostenBilanz"></div>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="haus">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Das Haus</h2>
+    <p class="lead">Ferienhaus LindGrün, Nitzer Straße 4, 56729 Lind. Nichtraucherhaus, Parkplätze direkt davor.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><path d="M76 20c-6-6 6-9 0-16" fill="none" stroke="#FBFAF3" stroke-width="4.5" stroke-linecap="round"/><rect x="72" y="26" width="9" height="20" fill="#8F2222"/><rect x="24" y="56" width="62" height="46" fill="#FBFAF3"/><path d="M14 60L55 26l41 34z" fill="#1F3B2D"/><path d="M33 44L55 26l22 18c-6 4-10-2-15 0s-9 4-14 0-9 3-15 0z" fill="#FBFAF3"/><rect x="48" y="76" width="14" height="26" rx="2" fill="#B5302F"/><circle cx="58.5" cy="90" r="1.6" fill="#E2A93B"/><rect x="30" y="68" width="12" height="13" rx="2" fill="#E2A93B"/><rect x="68" y="68" width="12" height="13" rx="2" fill="#E2A93B"/><path d="M36 68v13M30 74.5h12M74 68v13M68 74.5h12" stroke="#1F3B2D" stroke-width="1.5"/><rect x="101" y="92" width="5" height="10" fill="#1F3B2D"/><path d="M103.500 58l9 14h-5l8 12h-5l8 10h-30l8-10h-5l8-12h-5z" fill="#2C5240"/></svg></div>
+    <div class="haus">
+      <dl>
+        <div><dt>Schlafen</dt><dd>4 Doppelzimmer mit Boxspringbetten (180 × 200 cm)</dd></div>
+        <div><dt>Bäder</dt><dd>4 Bäder, jeweils mit Dusche und WC</dd></div>
+        <div><dt>Küche</dt><dd>Ausgestattet für 8 Personen: Backofen, Elektroherd, Kühlschrank, Spülmaschine, Mikrowelle, Wasserkocher und Kapselmaschine. Welche Kapseln passen, am besten vorher erfragen.</dd></div>
+        <div><dt>Wohnzimmer</dt><dd>Gemeinsame Sitzecke, Fernseher mit Radio, WLAN</dd></div>
+        <div><dt>Sauna</dt><dd>Finnische Sauna für bis zu 8 Personen, mit offener Dusche und Ruhebereich. Badelatschen und Saunatücher einpacken.</dd></div>
+        <div><dt>Weinkeller</dt><dd>Regionale Weine im Haus, Weinprobe auf Anfrage bei den Gastgebern</dd></div>
+        <div><dt>Wäsche</dt><dd>Waschmaschine und Trockner sind da</dd></div>
+        <div><dt>Draußen</dt><dd>Garten mit Sitzplätzen, Kohle- und Gasgrill, kostenlose Leihfahrräder</dd></div>
+      </dl>
+      <aside class="kontakt">
+        <h3>Gastgeber</h3>
+        <p>Anja und Torsten Schiller</p>
+        <p><a href="tel:+491718526739">0171 8526739</a><br>
+           <a href="mailto:info@ferienhaus-lindgruen.de">info@ferienhaus-lindgruen.de</a></p>
+        <p><a href="https://www.ferienhaus-lindgruen.de/" target="_blank" rel="noopener">ferienhaus-lindgruen.de</a></p>
+        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Ferienhaus+Lindgr%C3%BCn%2C+Nitzer+Stra%C3%9Fe+4%2C+56729+Lind" target="_blank" rel="noopener">Haus in Google Maps öffnen</a>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="infos">
+  <div class="wrap">
+    <div class="kopf"><div><h2>Infos für alle</h2>
+    <p class="lead">Die Eckdaten zum Antippen und Ausfüllen, darunter eine Pinnwand für alles andere.</p></div>
+      <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><rect x="54" y="90" width="12" height="14" fill="#8F2222"/><path d="M60 16L80 44H70L88 68H77L96 96H24L43 68H32L50 44H40Z" fill="#1F3B2D"/><path d="M47 49q13 8 26-2M39 73q21 10 42-2" fill="none" stroke="#E2A93B" stroke-width="2.5" stroke-linecap="round"/><circle cx="56" cy="36" r="4" fill="#B5302F"/><circle cx="68" cy="58" r="4" fill="#FBFAF3"/><circle cx="48" cy="62" r="4" fill="#B5302F"/><circle cx="74" cy="82" r="4" fill="#B5302F"/><circle cx="42" cy="86" r="4" fill="#FBFAF3"/><circle cx="58" cy="80" r="4" fill="#E2A93B"/><path transform="translate(60 13) scale(1.5) translate(0 33.5)" d="M0 -40l2.4 5 5.4.6-4 3.8 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.8 5.4-.6z" fill="#E2A93B"/></svg></div>
+    <div class="blatt">
+      <ul class="eck" id="eckdaten"></ul>
+    </div>
+    <div class="blatt">
+      <div id="notizForm">
+        <label class="sr" for="notizText">Notiz</label>
+        <textarea class="feld" id="notizText" maxlength="600" placeholder="Etwas, das alle wissen sollten: Wichtelregeln, Allergien beim Kochen, wer den Baumschmuck hat …"></textarea>
+        <div class="dlg-fuss" style="margin-top:10px"><button class="btn" type="button" id="notizBtn">An die Pinnwand</button></div>
+      </div>
+      <div class="zettel" id="notizen"></div>
+    </div>
+  </div>
+</section>
+
+<section class="abschnitt" id="wuensche">
+  <div class="wrap">
+    <div class="blatt wunsch">
+      <h3>Fehlt dir etwas auf der Seite?</h3>
+      <p>Schreib Jonathan, was du dir wünschst oder was nicht klappt. Er sieht es hier und baut es ein, wenn es geht.</p>
+      <button class="btn" type="button" id="wunschBtn">Wunsch an Jonathan schreiben</button>
+      <ul class="liste" id="wunschListe"></ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ende">
+  <div class="wrap">
+    <span>Gebaut für Anja, Josephine, Cornelis, Gunda, Tabea, Tom und Jonathan.</span>
+    <span class="werkzeug">
+      <button class="btn leise klein" id="schneeBtn" type="button">Schnee ausschalten</button>
+      <button class="btn leise klein" id="sichern" type="button">Sicherung herunterladen</button>
+      <button class="btn leise klein" id="einspielen" type="button">Sicherung einspielen</button>
+      <input type="file" id="sicherungDatei" accept="application/json,.json" hidden>
+    </span>
+    <span class="status" id="status" data-s="demo">Demo-Modus</span>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitel"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button type="button" id="toastBtn">Rückgängig</button></div>
+
+<script>
+/* =====================================================================
+   EINSTELLUNG: Hier die Adresse der Firebase Realtime Database eintragen.
+   Beispiel: "https://weihnachten-lindgruen-default-rtdb.europe-west1.firebasedatabase.app"
+   Solange das Feld leer ist, läuft die Seite im Demo-Modus (nur dieses Gerät).
+
+   Der geheime Schlüssel steht NICHT hier, sondern nur im Link, den ihr teilt:
+   https://…/#k=DEIN-SCHLUESSEL  – die Daten liegen in der Datenbank unter raum/DEIN-SCHLUESSEL.
+   ===================================================================== */
+const CONFIG = {
+  dbUrl: ""
+};
+
+/* Schlüssel aus dem Link lesen und auf diesem Gerät merken */
+let SCHLUESSEL = null;
+(function () {
+  const m = /[#&]k=([A-Za-z0-9_-]{8,80})/.exec(location.hash);
+  if (m) SCHLUESSEL = m[1];
+  try {
+    if (m) localStorage.setItem("lindgruen-k", m[1]);
+    else SCHLUESSEL = localStorage.getItem("lindgruen-k");
+  } catch (e) {}
+})();
+
+const LEUTE = ["Anja", "Josephine", "Cornelis", "Gunda", "Tabea", "Tom", "Jonathan"];
+const KATEGORIEN = [
+  { id: "essen",   name: "Essen und Zutaten",       farbe: "#B5302F" },
+  { id: "trinken", name: "Getränke",                farbe: "#E2A93B" },
+  { id: "spiele",  name: "Spiele und Unterhaltung", farbe: "#6F8B45" },
+  { id: "deko",    name: "Deko und Weihnachtliches", farbe: "#8F2222" },
+  { id: "sonst",   name: "Sonstiges",               farbe: "#1F3B2D" }
+];
+const TAGE = [
+  { id: "d22", nr: "22", wt: "Dienstag",   titel: "Anreise",            slots: ["abend"] },
+  { id: "d23", nr: "23", wt: "Mittwoch",   titel: "Ankommen und Einkaufen", slots: ["frueh", "mittag", "abend"] },
+  { id: "d24", nr: "24", wt: "Donnerstag", titel: "Heiligabend",        slots: ["frueh", "mittag", "abend"], fest: true },
+  { id: "d25", nr: "25", wt: "Freitag",    titel: "1. Weihnachtstag",   slots: ["frueh", "mittag", "abend"], fest: true },
+  { id: "d26", nr: "26", wt: "Samstag",    titel: "2. Weihnachtstag",   slots: ["frueh", "mittag", "abend"], fest: true },
+  { id: "d27", nr: "27", wt: "Sonntag",    titel: "Abreise",            slots: ["frueh"] }
+];
+const SLOTS = { frueh: "Frühstück", mittag: "Mittags", abend: "Abendessen" };
+const ECKDATEN = [
+  { id: "anreise",   frage: "Anreise am 22.12. ab wann?" },
+  { id: "abreise",   frage: "Abreise am 27.12. bis wann?" },
+  { id: "schluessel", frage: "Schlüsselübergabe" },
+  { id: "einkauf",   frage: "Wo kaufen wir ein?" },
+  { id: "waesche",   frage: "Bettwäsche und Handtücher: vorhanden oder mitbringen?" },
+  { id: "kosten",    frage: "Was kostet das Haus und wer überweist?" }
+];
+const VORSCHLAEGE = [
+  "Sauna-Abend im Haus", "Winterwanderung ab Haustür", "Spieleabend",
+  "Weinprobe im Hauskeller", "Ausflug zum Laacher See", "Nürburgring anschauen",
+  "Bummel durch Mayen", "Weihnachtsfilm-Abend", "Plätzchen backen"
+];
+const FAHRZEIT = { essen: 115, dietz: 115 };   // Minuten, geschätzt
+
+/* ---------- kleine Helfer ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === false || v == null) continue;
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else if (k === "style") el.style.cssText = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid);
+  return el;
+}
+const neueId = () => "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const eintraege = (o) => Object.entries(o || {}).filter(([, v]) => v && typeof v === "object");
+
+/* ---------- Speicher: Firebase (alle) oder localStorage (Demo) ---------- */
+const store = (() => {
+  let state = {};
+  const horcher = [];
+  // demo: keine Datenbank eingetragen | ohne: Datenbank da, aber Link ohne Schlüssel | sonst live
+  const modus = !CONFIG.dbUrl ? "demo" : !SCHLUESSEL ? "ohne" : "live";
+  const live = modus === "live";
+  const basis = CONFIG.dbUrl.replace(/\/+$/, "") + "/raum/" + SCHLUESSEL;
+  const url = (pfad) => basis + (pfad ? "/" + pfad : "") + ".json";
+  const LS = "lindgruen-demo-daten";
+  let status = modus === "live" ? "aus" : modus;
+
+  function setze(pfad, wert) {
+    const keys = String(pfad).split("/").filter(Boolean);
+    if (!keys.length) { state = (wert && typeof wert === "object") ? wert : {}; return; }
+    let o = state;
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (typeof o[keys[i]] !== "object" || o[keys[i]] === null) o[keys[i]] = {};
+      o = o[keys[i]];
+    }
+    const k = keys[keys.length - 1];
+    if (wert === null || wert === undefined) delete o[k]; else o[k] = wert;
+  }
+  function melde() { horcher.forEach((f) => f(state, status)); }
+  function setStatus(s) { if (s !== status) { status = s; melde(); } }
+
+  let es = null;
+  function verbinde() {
+    if (status === "falsch") return;
+    if (es) es.close();
+    es = new EventSource(url(""));
+    es.addEventListener("put", (e) => {
+      const d = JSON.parse(e.data); setze(d.path, d.data); status = "live"; melde();
+    });
+    es.addEventListener("patch", (e) => {
+      const d = JSON.parse(e.data);
+      for (const [k, v] of Object.entries(d.data || {})) setze(d.path + "/" + k, v);
+      status = "live"; melde();
+    });
+    es.addEventListener("cancel", () => setStatus("aus"));
+    es.onerror = () => { if (status !== "falsch") setStatus("aus"); };   // EventSource verbindet sich selbst neu
+  }
+  function falscherSchluessel() {
+    if (es) es.close();
+    try { localStorage.removeItem("lindgruen-k"); } catch (e) {}
+    setStatus("falsch");
+  }
+
+  async function schreibe(pfad, wert) {
+    setze(pfad, wert); melde();
+    if (modus === "demo") {
+      try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+      return true;
+    }
+    if (!live) return false;
+    try {
+      const r = await fetch(url(pfad), wert === null
+        ? { method: "DELETE" }
+        : { method: "PUT", body: JSON.stringify(wert) });
+      if (r.status === 401 || r.status === 403) { falscherSchluessel(); return false; }
+      if (!r.ok) throw new Error(r.status);
+      return true;
+    } catch (e) {
+      toast("Nicht gespeichert. Prüf die Internetverbindung und versuch es noch mal.");
+      setStatus("aus");
+      verbinde();   // holt den echten Stand zurück
+      return false;
+    }
+  }
+
+  function start() {
+    if (live) {
+      // Erst prüfen, ob der Schlüssel passt: die Datenbank antwortet sonst mit 401.
+      fetch(url("") + "?shallow=true")
+        .then((r) => (r.status === 401 || r.status === 403) ? falscherSchluessel() : verbinde())
+        .catch(() => verbinde());
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && status === "aus") verbinde();
+      });
+    } else if (modus === "demo") {
+      try { state = JSON.parse(localStorage.getItem(LS)) || {}; } catch (e) { state = {}; }
+      window.addEventListener("storage", (e) => {
+        if (e.key === LS) { try { state = JSON.parse(e.newValue) || {}; } catch (x) {} melde(); }
+      });
+    }
+    melde();
+  }
+  return { start, schreibe, live, modus, get: () => state, on: (f) => horcher.push(f) };
+})();
+
+/* ---------- Wer bin ich ---------- */
+let ich = null;
+try { ich = localStorage.getItem("lindgruen-ich"); } catch (e) {}
+if (!LEUTE.includes(ich)) ich = null;
+
+function setIch(name) {
+  ich = name;
+  try { localStorage.setItem("lindgruen-ich", name); } catch (e) {}
+  zeichneWer(); zeichneAlles();
+}
+function zeichneWer() {
+  $("#ichBtn").textContent = ich ? "Du bist " + ich : "Wer bist du?";
+  $("#werFrage").textContent = ich
+    ? "Hallo " + ich + ". Falls du jemand anderes bist, tipp deinen Namen an."
+    : "Wer bist du? Tipp deinen Namen an, dann weiß die Seite, wer was einträgt.";
+  $("#werChips").replaceChildren(...LEUTE.map((n) =>
+    h("button", { class: "chip", type: "button", "aria-pressed": String(n === ich), onclick: () => setIch(n) }, n)));
+}
+/* Führt fn aus, sobald klar ist, wer vor dem Bildschirm sitzt. */
+function mitName(fn) {
+  if (ich) return fn();
+  namenDialog({ titel: "Wer bist du?", hinweis: "Einmal antippen, die Seite merkt es sich auf diesem Gerät.",
+    wahl: (n) => { setIch(n); fn(); } });
+}
+$("#ichBtn").addEventListener("click", () =>
+  namenDialog({ titel: "Wer bist du?", aktuell: ich, wahl: setIch }));
+
+/* ---------- Dialoge ---------- */
+const dlg = $("#dlg");
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+function oeffne(...inhalt) { dlg.replaceChildren(...inhalt); dlg.showModal(); }
+
+function namenDialog({ titel, hinweis, aktuell, wahl, leerText, leer, extra }) {
+  const mehr = (extra || []).concat(leer ? [[leerText, leer]] : []);
+  oeffne(
+    h("h3", { id: "dlgTitel" }, titel),
+    hinweis && h("p", { class: "hinweis" }, hinweis),
+    h("div", { class: "chips" }, LEUTE.map((n) =>
+      h("button", { class: "chip", type: "button", "aria-pressed": String(n === aktuell),
+        onclick: () => { dlg.close(); wahl(n); } }, n))),
+    h("div", { class: "dlg-fuss" },
+      mehr.map(([text, fn]) => h("button", { class: "btn leise", type: "button", onclick: () => { dlg.close(); fn(); } }, text)),
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"))
+  );
+}
+
+function textDialog({ titel, hinweis, label, wert, platzhalter, speichern, mehrzeilig, knopf }) {
+  const feld = mehrzeilig
+    ? h("textarea", { class: "feld", id: "dlgFeld", maxlength: "600", rows: "5", placeholder: platzhalter || "" })
+    : h("input", { class: "feld", id: "dlgFeld", maxlength: "160", placeholder: platzhalter || "" });
+  feld.value = wert || "";
+  const ok = h("button", { class: "btn", type: "button" }, knopf || "Speichern");
+  aktion(ok, mehrzeilig ? null : feld, () => { dlg.close(); speichern(feld.value.trim()); });
+  oeffne(
+    h("h3", { id: "dlgTitel" }, titel),
+    hinweis && h("p", { class: "hinweis" }, hinweis),
+    h("label", { for: "dlgFeld" }, label), feld,
+    h("div", { class: "dlg-fuss" },
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"), ok));
+  feld.focus(); if (!mehrzeilig) feld.select();
+}
+
+/* ---------- Toast mit Rückgängig ---------- */
+let toastTimer = null;
+function toast(text, rueck) {
+  $("#toastText").textContent = text;
+  const b = $("#toastBtn");
+  b.hidden = !rueck;
+  b.onclick = () => { $("#toast").hidden = true; rueck && rueck(); };
+  $("#toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $("#toast").hidden = true; }, rueck ? 7000 : 4500);
+}
+function loesche(pfad, wert, text) {
+  store.schreibe(pfad, null);
+  toast(text, () => store.schreibe(pfad, wert));
+}
+
+/* ---------- Mitbringliste ---------- */
+let bringFilter = "alle", bringArt = "mit";
+document.querySelectorAll("#bringArt button").forEach((b) => b.addEventListener("click", () => {
+  bringArt = b.dataset.art;
+  document.querySelectorAll("#bringArt button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+}));
+$("#bringKat").replaceChildren(...KATEGORIEN.map((k) => h("option", { value: k.id }, k.name)));
+/* Knopf und Enter-Taste lösen dieselbe Aktion aus. Bewusst ohne <form>-Absenden. */
+function aktion(knopf, feld, fn) {
+  knopf.addEventListener("click", fn);
+  if (feld) feld.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); fn(); } });
+}
+aktion($("#bringBtn"), $("#bringText"), () => {
+  const t = $("#bringText").value.trim();
+  if (!t) { $("#bringText").focus(); return; }
+  mitName(() => {
+    const neu = { t, c: $("#bringKat").value, von: ich, ts: Date.now() };
+    if (bringArt === "dort") neu.dort = true;
+    store.schreibe("bring/" + neueId(), neu);
+    $("#bringText").value = ""; $("#bringText").focus();
+  });
+});
+document.querySelectorAll(".filter button").forEach((b) => b.addEventListener("click", () => {
+  bringFilter = b.dataset.f;
+  document.querySelectorAll(".filter button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  if (bringFilter === "ich" && !ich) mitName(zeichneBring); else zeichneBring();
+}));
+
+function zeichneBring() {
+  const alle = eintraege(store.get().bring).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+  const offen = alle.filter(([, v]) => !v.by && !v.dort).length;
+  const kauf = alle.filter(([, v]) => v.dort).length;
+  $("#bringZahl").textContent = alle.length
+    ? alle.length + (alle.length === 1 ? " Eintrag, " : " Einträge, ") + offen + " noch offen" + (kauf ? ", " + kauf + " für den Einkauf" : "") : "";
+  const sicht = alle.filter(([, v]) =>
+    bringFilter === "offen" ? (!v.by && !v.dort) : bringFilter === "ich" ? v.by === ich : bringFilter === "kauf" ? !!v.dort : true);
+  const box = $("#bringListe");
+  if (!sicht.length) {
+    box.replaceChildren(h("p", { class: "leer" },
+      !alle.length ? "Die Liste ist noch leer. Was darf auf keinen Fall fehlen?"
+      : bringFilter === "offen" ? "Alles verteilt. Es bleibt nichts offen."
+      : bringFilter === "kauf" ? "Die Einkaufsliste ist leer. Wähl beim Eintragen „Kaufen wir dort“."
+      : "Du hast dich noch für nichts eingetragen."));
+    return;
+  }
+  const teile = [];
+  for (const k of KATEGORIEN) {
+    const items = sicht.filter(([, v]) => (v.c || "sonst") === k.id);
+    if (!items.length) continue;
+    teile.push(h("h3", { class: "kat", style: "--k:" + k.farbe }, k.name));
+    teile.push(h("ul", { class: "liste" }, items.map(([id, v]) => bringZeile(id, v))));
+  }
+  box.replaceChildren(...teile);
+}
+function bringZeile(id, v) {
+  const pfad = "bring/" + id;
+  const setz = (teil) => store.schreibe(pfad, Object.assign({}, v, teil, { ok: null, by: null, dort: null }, teil));
+  const wer = (n) => setz({ by: n });
+  const extra = [];
+  if (!v.dort) extra.push(["Kaufen wir dort", () => setz({ dort: true })]);
+  if (v.by || v.dort) extra.push(["Wieder offen", () => setz({})]);
+  const waehle = () => namenDialog({ titel: "Wer bringt das mit?", hinweis: v.t, aktuell: v.by, wahl: wer, extra });
+  const haken = (text) => h("label", { class: "pack" },
+    h("input", { type: "checkbox", checked: !!v.ok, onchange: (e) => store.schreibe(pfad + "/ok", e.target.checked ? true : null) }), text);
+  return h("li", { class: v.ok ? "gepackt" : "" },
+    h("div", { class: "ding" }, h("span", {}, v.t),
+      v.von && h("small", {}, "eingetragen von " + v.von)),
+    v.dort
+      ? [haken("gekauft"),
+         h("button", { class: "traeger dort", type: "button", onclick: waehle, "aria-label": "Kaufen wir dort. Ändern" }, "kaufen wir dort")]
+    : v.by
+      ? [haken("eingepackt"),
+         h("button", { class: "traeger", type: "button", onclick: waehle, "aria-label": v.by + " bringt das mit. Ändern" }, v.by + " bringt's")]
+      : [h("button", { class: "btn klein", type: "button", onclick: () => mitName(() => wer(ich)) }, "Ich bring's"),
+         h("button", { class: "btn leise klein", type: "button", onclick: waehle }, "Jemand anderes")],
+    h("button", { class: "x", type: "button", "aria-label": v.t + " von der Liste nehmen",
+      onclick: () => loesche(pfad, v, "„" + v.t + "“ entfernt") }, "×"));
+}
+
+/* ---------- Essensplan ---------- */
+function zeichneEssen() {
+  const plan = store.get().essen || {};
+  $("#essenPlan").replaceChildren(...TAGE.map((t) =>
+    h("div", { class: "tag" + (t.fest ? " fest" : "") },
+      h("div", { class: "datum" }, h("b", {}, t.nr + "."), h("span", {}, t.wt)),
+      h("div", {},
+        h("h3", {}, t.titel),
+        h("div", { class: "mahlzeiten" + (t.slots.length === 3 ? " drei" : "") }, t.slots.map((s) => {
+          const m = (plan[t.id] || {})[s] || {};
+          const koeche = Object.keys(m.wer || {});
+          const leer = !m.was && !m.info && !koeche.length;
+          return h("button", { class: "mahl" + (leer ? " offen" : ""), type: "button",
+              onclick: () => essenDialog(t, s, m) },
+            h("span", { class: "slot" }, SLOTS[s]),
+            h("span", { class: "gericht" }, m.was || (leer ? "Noch offen" : "Noch ohne Titel")),
+            m.info ? h("span", { class: "details" }, m.info) : null,
+            koeche.length ? h("span", { class: "koch" }, "Kümmert sich: " + koeche.join(", ")) : null);
+        }))))));
+}
+function essenDialog(t, s, m) {
+  const gewaehlt = new Set(Object.keys(m.wer || {}));
+  const feld = h("input", { class: "feld", id: "dlgFeld", maxlength: "80", value: m.was || "", placeholder: "z. B. Raclette" });
+  const info = h("textarea", { class: "feld", id: "dlgInfo", maxlength: "500", rows: "4",
+    placeholder: "Gänge, Beilagen, Details. z. B. vorweg Feldsalat, danach Bratapfel" });
+  info.value = m.info || "";
+  const chips = h("div", { class: "chips" }, LEUTE.map((n) => {
+    const b = h("button", { class: "chip", type: "button", "aria-pressed": String(gewaehlt.has(n)) }, n);
+    b.addEventListener("click", () => {
+      gewaehlt.has(n) ? gewaehlt.delete(n) : gewaehlt.add(n);
+      b.setAttribute("aria-pressed", String(gewaehlt.has(n)));
+    });
+    return b;
+  }));
+  const pfad = "essen/" + t.id + "/" + s;
+  const ok = h("button", { class: "btn", type: "button" }, "Speichern");
+  aktion(ok, feld, () => {
+    dlg.close();
+    const was = feld.value.trim(), txt = info.value.trim();
+    const wert = {};
+    if (was) wert.was = was;
+    if (txt) wert.info = txt;
+    if (gewaehlt.size) { wert.wer = {}; gewaehlt.forEach((n) => { wert.wer[n] = true; }); }
+    store.schreibe(pfad, Object.keys(wert).length ? wert : null);
+  });
+  oeffne(
+    h("h3", { id: "dlgTitel" }, SLOTS[s] + " am " + t.nr + ".12."),
+    h("p", { class: "hinweis" }, t.wt + ", " + t.titel),
+    h("label", { for: "dlgFeld" }, "Titel"), feld,
+    h("label", { for: "dlgInfo" }, "Beschreibung"), info,
+    h("label", {}, "Wer kümmert sich?"), chips,
+    h("div", { class: "dlg-fuss" },
+      !!(m.was || m.info || gewaehlt.size) && h("button", { class: "btn leise", type: "button",
+        onclick: () => { dlg.close(); loesche(pfad, m, SLOTS[s] + " am " + t.nr + ".12. geleert"); } }, "Leeren"),
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"), ok));
+  feld.focus();
+}
+
+/* ---------- Zimmer ---------- */
+const BETTEN = ["z1", "z2", "z3", "z4"].flatMap((z) => [z + "/a", z + "/b"]);
+function zeichneZimmer() {
+  const zi = store.get().zimmer || {};
+  const belegt = (p) => { const [z, s] = p.split("/"); return (zi[z] || {})[s] || null; };
+  $("#zimmerGrid").replaceChildren(...["z1", "z2", "z3", "z4"].map((z, i) =>
+    h("div", { class: "zi" },
+      h("h3", {}, "Zimmer " + (i + 1)),
+      h("div", { class: "bett" }, ["a", "b"].map((s) => {
+        const p = z + "/" + s, wer = belegt(p);
+        return h("button", { class: "kissen" + (wer ? "" : " frei") + (wer && wer === ich ? " ich" : ""), type: "button",
+          "aria-label": "Zimmer " + (i + 1) + ", " + (s === "a" ? "linke" : "rechte") + " Seite: " + (wer || "frei"),
+          onclick: () => namenDialog({
+            titel: "Wer schläft hier?", hinweis: "Zimmer " + (i + 1) + ", " + (s === "a" ? "linke" : "rechte") + " Seite",
+            aktuell: wer,
+            wahl: (n) => { BETTEN.forEach((b) => { if (b !== p && belegt(b) === n) store.schreibe("zimmer/" + b, null); });
+                           store.schreibe("zimmer/" + p, n); },
+            leerText: "Bett freigeben", leer: wer ? () => store.schreibe("zimmer/" + p, null) : null })
+        }, wer || "frei");
+      })))));
+  const drin = BETTEN.map(belegt).filter(Boolean);
+  const ohne = LEUTE.filter((n) => !drin.includes(n));
+  $("#ohneBett").textContent = ohne.length ? "Noch ohne Bett: " + ohne.join(", ") : "Alle haben ein Bett. Ein Platz bleibt frei für die Geschenke.";
+}
+
+/* ---------- Programm ---------- */
+function neueIdee(t) {
+  mitName(() => store.schreibe("ideen/" + neueId(), { t, von: ich, ts: Date.now(), ja: { [ich]: true } }));
+}
+aktion($("#ideeBtn"), $("#ideeText"), () => {
+  const t = $("#ideeText").value.trim();
+  if (!t) { $("#ideeText").focus(); return; }
+  neueIdee(t); $("#ideeText").value = "";
+});
+function zeichneIdeen() {
+  const ideen = eintraege(store.get().ideen)
+    .map(([id, v]) => [id, v, Object.keys(v.ja || {})])
+    .sort((a, b) => b[2].length - a[2].length || (a[1].ts || 0) - (b[1].ts || 0));
+  $("#ideenListe").replaceChildren(...(ideen.length ? ideen.map(([id, v, ja]) => {
+    const dabei = !!ich && ja.includes(ich);
+    return h("li", {},
+      h("button", { class: "stimme", type: "button", "aria-pressed": String(dabei),
+        "aria-label": (dabei ? "Stimme zurücknehmen für " : "Stimme geben für ") + v.t,
+        onclick: () => mitName(() => store.schreibe("ideen/" + id + "/ja/" + ich, (v.ja || {})[ich] ? null : true)) },
+        String(ja.length), h("small", {}, ja.length === 1 ? "Stimme" : "Stimmen")),
+      h("div", { class: "ding" }, h("span", {}, v.t),
+        h("small", {}, ja.length ? "Dabei: " + ja.join(", ") : "Noch niemand dabei")),
+      h("button", { class: "x", type: "button", "aria-label": v.t + " entfernen",
+        onclick: () => loesche("ideen/" + id, v, "„" + v.t + "“ entfernt") }, "×"));
+  }) : [h("li", { class: "leer" }, "Noch keine Ideen. Schlag etwas vor oder tipp unten einen Vorschlag an.")]));
+  const da = ideen.map(([, v]) => v.t);
+  const frei = VORSCHLAEGE.filter((t) => !da.includes(t));
+  $("#vorschlaege").hidden = !frei.length;
+  $("#vorschlagChips").replaceChildren(...frei.map((t) =>
+    h("button", { class: "chip", type: "button", onclick: () => neueIdee(t) }, t)));
+}
+
+/* ---------- Eckdaten und Pinnwand ---------- */
+function zeichneInfos() {
+  const eck = store.get().eck || {};
+  $("#essenHinweis").replaceChildren(h("li", {}, h("button", { type: "button", onclick: () => textDialog({
+      titel: "Wer isst was nicht?", hinweis: "Vegetarisch, Unverträglichkeiten, mag keinen Rosenkohl: alles, was die Köche wissen sollten.",
+      label: "Eine Zeile pro Person", wert: eck.essen, mehrzeilig: true, platzhalter: "Tabea: vegetarisch\nTom: keine Nüsse",
+      speichern: (w) => store.schreibe("eck/essen", w || null) }) },
+    h("span", { class: "frage" }, "Wer isst was nicht?"),
+    h("span", { class: "antwort" + (eck.essen ? "" : " offen") }, eck.essen || "Noch nichts eingetragen. Antippen und ergänzen"))));
+  $("#eckdaten").replaceChildren(...ECKDATEN.map((e) =>
+    h("li", {}, h("button", { type: "button", onclick: () => textDialog({
+        titel: e.frage, label: "Antwort", wert: eck[e.id],
+        speichern: (w) => store.schreibe("eck/" + e.id, w || null) }) },
+      h("span", { class: "frage" }, e.frage),
+      h("span", { class: "antwort" + (eck[e.id] ? "" : " offen") }, eck[e.id] || "Noch offen. Antippen und eintragen")))));
+  const notizen = eintraege(store.get().notizen).sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0));
+  $("#notizen").replaceChildren(...notizen.map(([id, v]) =>
+    h("article", {},
+      h("p", {}, v.t),
+      h("footer", {}, (v.von || "Jemand") + (v.ts ? ", " + new Date(v.ts).toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : "")),
+      h("button", { class: "x", type: "button", "aria-label": "Notiz entfernen",
+        onclick: () => loesche("notizen/" + id, v, "Notiz entfernt") }, "×"))));
+}
+aktion($("#notizBtn"), null, () => {
+  const t = $("#notizText").value.trim();
+  if (!t) { $("#notizText").focus(); return; }
+  mitName(() => { store.schreibe("notizen/" + neueId(), { t, von: ich, ts: Date.now() }); $("#notizText").value = ""; });
+});
+
+/* ---------- Kosten ---------- */
+const euro = (cent) => (cent / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+function leseBetrag(text) {            // "12,50" oder "12.50" oder "1.234,50" -> Cent
+  let t = String(text).replace(/[€\s]/g, "");
+  if (/,/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  const n = Number(t);
+  return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
+}
+function rechneAb(posten) {
+  const saldo = {}, gezahlt = {};
+  LEUTE.forEach((n) => { saldo[n] = 0; gezahlt[n] = 0; });
+  let summe = 0;
+  for (const [, v] of posten) {
+    const fuer = Object.keys(v.fuer || {}).filter((n) => n in saldo);
+    if (!(v.wer in saldo) || !fuer.length || !(v.b > 0)) continue;
+    summe += v.b; gezahlt[v.wer] += v.b; saldo[v.wer] += v.b;
+    fuer.forEach((n) => { saldo[n] -= v.b / fuer.length; });
+  }
+  // Ausgleich: wer am meisten schuldet, zahlt an den, der am meisten bekommt
+  const rest = LEUTE.map((n) => [n, Math.round(saldo[n])]);
+  const wege = [];
+  for (let i = 0; i < 50; i++) {
+    const s = rest.reduce((a, b) => (b[1] < a[1] ? b : a)), g = rest.reduce((a, b) => (b[1] > a[1] ? b : a));
+    const x = Math.min(-s[1], g[1]);
+    if (x < 1) break;
+    wege.push([s[0], g[0], x]); s[1] += x; g[1] -= x;
+  }
+  return { summe, saldo, gezahlt, wege };
+}
+function zeichneKosten() {
+  const posten = eintraege(store.get().kosten).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+  $("#kostenListe").replaceChildren(...(posten.length ? posten.map(([id, v]) => {
+    const fuer = Object.keys(v.fuer || {});
+    return h("li", {},
+      h("button", { class: "posten", type: "button", "aria-label": v.t + " bearbeiten", onclick: () => kostenDialog(id, v) },
+        h("b", {}, v.t),
+        h("small", {}, v.wer + " hat bezahlt, " + (fuer.length === LEUTE.length ? "für alle" : "für " + fuer.join(", ")))),
+      h("span", { class: "betrag" }, euro(v.b)),
+      h("button", { class: "x", type: "button", "aria-label": v.t + " entfernen",
+        onclick: () => loesche("kosten/" + id, v, "„" + v.t + "“ entfernt") }, "×"));
+  }) : [h("li", { class: "leer" }, "Noch keine Ausgaben. Die erste kommt bestimmt.")]));
+  const box = $("#kostenBilanz");
+  box.hidden = !posten.length;
+  if (!posten.length) return;
+  const r = rechneAb(posten);
+  box.replaceChildren(
+    h("p", { class: "summe" }, "Zusammen " + euro(r.summe)),
+    h("h3", {}, "So wird es glatt"),
+    h("ul", {}, r.wege.length ? r.wege.map(([von, an, x]) =>
+        h("li", {}, h("span", {}, von + " gibt " + an), h("b", {}, euro(x))))
+      : [h("li", {}, "Alles ausgeglichen. Niemand schuldet etwas.")]),
+    h("h3", {}, "Stand pro Person"),
+    h("ul", {}, LEUTE.map((n) => {
+      const s = Math.round(r.saldo[n]);
+      return h("li", {}, h("span", {}, n + (r.gezahlt[n] ? ", " + euro(r.gezahlt[n]) + " ausgelegt" : "")),
+        h("span", { class: s > 0 ? "plus" : s < 0 ? "minus" : "" }, s > 0 ? "bekommt " + euro(s) : s < 0 ? "zahlt " + euro(-s) : "ausgeglichen"));
+    })));
+}
+function kostenDialog(id, v) {
+  v = v || {};
+  let zahler = v.wer || ich;
+  const fuer = new Set(v.fuer ? Object.keys(v.fuer) : LEUTE);
+  const wofuer = h("input", { class: "feld", id: "dlgFeld", maxlength: "80", placeholder: "z. B. Einkauf am 23.12." });
+  wofuer.value = v.t || "";
+  const betrag = h("input", { class: "feld", id: "dlgBetrag", inputmode: "decimal", maxlength: "12", placeholder: "z. B. 84,30" });
+  betrag.value = v.b ? (v.b / 100).toFixed(2).replace(".", ",") : "";
+  const fehler = h("p", { class: "fehler", role: "alert" });
+  const einzel = h("div", { class: "chips" }, LEUTE.map((n) => {
+    const b = h("button", { class: "chip", type: "button", "aria-pressed": String(n === zahler) }, n);
+    b.addEventListener("click", () => { zahler = n; einzel.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); });
+    return b;
+  }));
+  const viele = h("div", { class: "chips" }, LEUTE.map((n) => {
+    const b = h("button", { class: "chip", type: "button", "aria-pressed": String(fuer.has(n)) }, n);
+    b.addEventListener("click", () => { fuer.has(n) ? fuer.delete(n) : fuer.add(n); b.setAttribute("aria-pressed", String(fuer.has(n))); });
+    return b;
+  }));
+  const ok = h("button", { class: "btn", type: "button" }, "Speichern");
+  const sichern = () => {
+    const t = wofuer.value.trim(), b = leseBetrag(betrag.value);
+    if (!t) { fehler.textContent = "Schreib kurz dazu, wofür die Ausgabe war."; wofuer.focus(); return; }
+    if (!b) { fehler.textContent = "Der Betrag fehlt oder ist keine Zahl, z. B. 84,30."; betrag.focus(); return; }
+    if (!zahler) { fehler.textContent = "Tipp an, wer bezahlt hat."; return; }
+    if (!fuer.size) { fehler.textContent = "Tipp mindestens eine Person an, für die das war."; return; }
+    const f = {}; fuer.forEach((n) => { f[n] = true; });
+    dlg.close();
+    store.schreibe("kosten/" + (id || neueId()), { t, b, wer: zahler, fuer: f, ts: v.ts || Date.now() });
+  };
+  aktion(ok, wofuer, sichern);
+  betrag.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sichern(); } });
+  oeffne(
+    h("h3", { id: "dlgTitel" }, id ? "Ausgabe ändern" : "Ausgabe eintragen"),
+    h("label", { for: "dlgFeld" }, "Wofür?"), wofuer,
+    h("label", { for: "dlgBetrag" }, "Betrag in Euro"), betrag,
+    h("label", {}, "Wer hat bezahlt?"), einzel,
+    h("label", {}, "Für wen war das? Geteilt wird zu gleichen Teilen."), viele,
+    fehler,
+    h("div", { class: "dlg-fuss" },
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"), ok));
+  wofuer.focus();
+}
+$("#kostenBtn").addEventListener("click", () => mitName(() => kostenDialog(null, null)));
+
+/* ---------- Wünsche für die Seite ---------- */
+$("#wunschBtn").addEventListener("click", () => mitName(() => textDialog({
+  titel: "Wunsch an Jonathan", hinweis: "Was fehlt, was nervt, was wäre schön? Alle können die Wünsche unten lesen.",
+  label: "Dein Wunsch", mehrzeilig: true, knopf: "Abschicken", platzhalter: "z. B. Ich hätte gern eine Liste für Spiele, die wir spielen wollen.",
+  speichern: (t) => { if (t) { store.schreibe("wuensche/" + neueId(), { t, von: ich, ts: Date.now() }); toast("Wunsch abgeschickt. Jonathan sieht ihn hier auf der Seite."); } } })));
+function zeichneWuensche() {
+  const w = eintraege(store.get().wuensche).sort((a, b) => (!!a[1].ok - !!b[1].ok) || (b[1].ts || 0) - (a[1].ts || 0));
+  $("#wunschListe").replaceChildren(...w.map(([id, v]) =>
+    h("li", { class: v.ok ? "erledigt" : "" },
+      h("div", { class: "ding" }, h("span", {}, v.t),
+        h("small", {}, (v.von || "Jemand") + (v.ts ? ", " + new Date(v.ts).toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : ""))),
+      ich === "Jonathan"
+        ? h("label", { class: "pack" }, h("input", { type: "checkbox", checked: !!v.ok,
+            onchange: (e) => store.schreibe("wuensche/" + id + "/ok", e.target.checked ? true : null) }), "erledigt")
+        : (v.ok ? h("span", { class: "marke" }, "erledigt") : null),
+      h("button", { class: "x", type: "button", "aria-label": "Wunsch entfernen",
+        onclick: () => loesche("wuensche/" + id, v, "Wunsch entfernt") }, "×"))));
+}
+
+/* ---------- Sicherung ---------- */
+$("#sichern").addEventListener("click", () => {
+  const inhalt = { seite: "weihnachten-lindgruen", stand: new Date().toISOString(), daten: store.get() };
+  const a = h("a", { download: "lindgruen-sicherung-" + inhalt.stand.slice(0, 10) + ".json",
+    href: URL.createObjectURL(new Blob([JSON.stringify(inhalt, null, 2)], { type: "application/json" })) });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  toast("Sicherung heruntergeladen.");
+});
+$("#einspielen").addEventListener("click", () => $("#sicherungDatei").click());
+$("#sicherungDatei").addEventListener("change", async (e) => {
+  const datei = e.target.files[0]; e.target.value = "";
+  if (!datei) return;
+  let inhalt = null;
+  try { inhalt = JSON.parse(await datei.text()); } catch (x) {}
+  if (!inhalt || inhalt.seite !== "weihnachten-lindgruen" || typeof inhalt.daten !== "object" || !inhalt.daten) {
+    toast("Das ist keine Sicherung dieser Seite."); return;
+  }
+  const vom = new Date(inhalt.stand).toLocaleString("de-DE", { dateStyle: "long", timeStyle: "short" });
+  oeffne(
+    h("h3", { id: "dlgTitel" }, "Sicherung einspielen?"),
+    h("p", { class: "hinweis" }, "Stand vom " + vom + ". Alles, was jetzt auf der Seite steht, wird für alle durch diesen Stand ersetzt."),
+    h("div", { class: "dlg-fuss" },
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"),
+      h("button", { class: "btn", type: "button", onclick: () => { dlg.close(); store.schreibe("", inhalt.daten); toast("Sicherung eingespielt."); } }, "Ersetzen")));
+});
+
+/* ---------- Countdown ---------- */
+function zeichneCountdown() {
+  const heute = new Date(); heute.setHours(0, 0, 0, 0);
+  const an = new Date(2026, 11, 22), ab = new Date(2026, 11, 27);
+  const n = Math.round((an - heute) / 864e5);
+  const el = $("#schlafen");
+  if (n > 1) el.replaceChildren("Noch ", h("b", {}, String(n)), " Mal schlafen.");
+  else if (n === 1) el.replaceChildren("Noch ", h("b", {}, "einmal"), " schlafen.");
+  else if (heute <= ab) el.replaceChildren(n === 0 ? "Heute geht es los." : "Wir sind da. Frohe Weihnachten!");
+  else el.textContent = "Schön war's.";
+}
+
+/* ---------- Anfahrtskarte ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const S = 320, X = (lon) => (lon - 6.35) * 0.636 * S, Y = (lat) => (51.68 - lat) * S;
+const P = (lat, lon) => [X(lon), Y(lat)];
+function svg(tag, attrs, text) {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  if (text != null) el.textContent = text;
+  return el;
+}
+/* Weiche Kurve durch alle Punkte (Catmull-Rom als Bézier) */
+function kurve(pts) {
+  let d = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += " C" + [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6,
+                 p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6, p2[0], p2[1]].map((n) => n.toFixed(1)).join(" ");
+  }
+  return d;
+}
+const LIND = P(50.3224, 7.0347);
+const ROUTEN = {
+  essen: { farbe: "#B5302F", name: "Essen", pts: [P(51.455, 7.012), P(51.30, 6.95), P(51.17, 6.94), P(50.93, 7.06),
+           P(50.75, 7.04), P(50.63, 7.03), P(50.54, 7.11), P(50.46, 7.22), P(50.37, 7.28), P(50.33, 7.20), [LIND[0] + 20, LIND[1] - 11]] },
+  dietz: { farbe: "#E2A93B", name: "Dietzenbach", pts: [P(50.009, 8.776), P(50.05, 8.60), P(50.16, 8.31), P(50.39, 8.06),
+           P(50.44, 7.83), P(50.42, 7.57), P(50.36, 7.38), P(50.33, 7.22), [LIND[0] + 20, LIND[1] + 12]] }
+};
+const karte = $("#karte");
+const reduziert = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function baueKarte() {
+  // Höhenringe der Eifel, ganz leise
+  [34, 62, 92].forEach((r) => karte.append(svg("circle", { cx: LIND[0] - 6, cy: LIND[1] - 8, r, fill: "none", stroke: "#2C5240", "stroke-width": 1.5 })));
+  // Rhein und Mosel
+  const rhein = [P(49.99, 8.30), P(50.01, 8.10), P(49.98, 7.90), P(50.06, 7.76), P(50.15, 7.71), P(50.36, 7.60), P(50.44, 7.42),
+                 P(50.58, 7.23), P(50.73, 7.11), P(50.94, 6.97), P(51.23, 6.77), P(51.45, 6.72), P(51.66, 6.60)];
+  const main = [P(49.99, 8.30), P(50.05, 8.52), P(50.10, 8.70), P(50.12, 9.00)];
+  const mosel = [P(50.36, 7.60), P(50.24, 7.44), P(50.15, 7.17), P(50.06, 7.10)];
+  karte.append(svg("path", { d: kurve(rhein), fill: "none", stroke: "#4E8088", "stroke-width": 5, "stroke-linecap": "round" }));
+  karte.append(svg("path", { d: kurve(main), fill: "none", stroke: "#4E8088", "stroke-width": 3.5, "stroke-linecap": "round" }));
+  karte.append(svg("path", { d: kurve(mosel), fill: "none", stroke: "#4E8088", "stroke-width": 3, "stroke-linecap": "round" }));
+  const txt = { "font-family": "Figtree, system-ui, sans-serif" };
+  [["Rhein", 51.10, 6.62, -68], ["Mosel", 50.13, 7.30, 40]].forEach(([t, la, lo, w]) =>
+    karte.append(svg("text", { ...txt, x: X(lo), y: Y(la), "font-size": 12, fill: "#6FA3A8", "font-style": "italic", transform: `rotate(${w} ${X(lo)} ${Y(la)})` }, t)));
+  [["Eifel", 50.47, 6.52], ["Westerwald", 50.66, 7.72], ["Taunus", 50.26, 8.28], ["Ruhrgebiet", 51.56, 7.18]].forEach(([t, la, lo]) =>
+    karte.append(svg("text", { x: X(lo), y: Y(la), "font-family": "'Young Serif', Georgia, serif", "font-size": 17, fill: "#C6D89C", opacity: .38 }, t)));
+  // Strecken: blasse Spur + farbige Spur, die mit dem Auto wächst
+  for (const [id, r] of Object.entries(ROUTEN)) {
+    const d = kurve(r.pts);
+    karte.append(svg("path", { d, fill: "none", stroke: r.farbe, "stroke-width": 3, "stroke-dasharray": "2 7", "stroke-linecap": "round", opacity: .55 }));
+    r.spur = svg("path", { d, fill: "none", stroke: r.farbe, "stroke-width": 4.5, "stroke-linecap": "round" });
+    karte.append(r.spur);
+    r.len = r.spur.getTotalLength();
+    r.spur.setAttribute("stroke-dasharray", r.len);
+  }
+  // Städte
+  const orte = [["Köln", 50.94, 6.96, -10, 4, "end"], ["Bonn", 50.73, 7.10, -10, 4, "end"], ["Koblenz", 50.36, 7.60, 0, 22, "middle"],
+                ["Limburg", 50.39, 8.06, 0, -11, "middle"], ["Frankfurt", 50.11, 8.68, 0, -11, "middle"], ["Düsseldorf", 51.23, 6.77, -10, 4, "end"]];
+  orte.forEach(([t, la, lo, dx, dy, anker]) => {
+    karte.append(svg("circle", { cx: X(lo), cy: Y(la), r: 3.5, fill: "#DCE8BE", opacity: .7 }));
+    karte.append(svg("text", { ...txt, x: X(lo) + dx, y: Y(la) + dy, "font-size": 13, fill: "#DCE8BE", opacity: .8, "text-anchor": anker }, t));
+  });
+  // Startpunkte
+  [["essen", "Essen", 14, 5, "start"], ["dietz", "Dietzenbach", -14, 5, "end"]].forEach(([id, t, dx, dy, anker]) => {
+    const [x, y] = ROUTEN[id].pts[0];
+    karte.append(svg("circle", { cx: x, cy: y, r: 7, fill: ROUTEN[id].farbe, stroke: "#FBFAF3", "stroke-width": 2 }));
+    karte.append(svg("text", { ...txt, x: x + dx, y: y + dy, "font-size": 16, "font-weight": 700, fill: "#FBFAF3", "text-anchor": anker }, t));
+  });
+  // Ziel: Tanne mit Stern
+  const z = svg("g", { transform: `translate(${LIND[0]} ${LIND[1]})` });
+  const ring = svg("circle", { r: 16, fill: "none", stroke: "#E2A93B", "stroke-width": 2, opacity: 0, id: "zielRing" });
+  z.append(ring);
+  z.append(svg("path", { d: "M0 -30 L9 -17 H4 L12 -6 H5 L14 6 H-14 L-5 -6 H-12 L-4 -17 H-9 Z", fill: "#C6D89C" }));
+  z.append(svg("rect", { x: -2.5, y: 6, width: 5, height: 6, fill: "#6F8B45" }));
+  z.append(svg("path", { d: "M0 -40 l2.4 5 5.4.6 -4 3.8 1 5.4 -4.8 -2.6 -4.8 2.6 1 -5.4 -4 -3.8 5.4 -.6z", fill: "#E2A93B" }));
+  z.append(svg("text", { ...txt, x: -20, y: 2, "font-size": 19, "font-weight": 700, fill: "#C6D89C", "text-anchor": "end" }, "Lind"));
+  karte.append(z);
+  // Autos
+  for (const r of Object.values(ROUTEN)) {
+    r.auto = svg("g", {});
+    r.auto.append(svg("circle", { r: 12, fill: r.farbe, stroke: "#FBFAF3", "stroke-width": 2.5 }));
+    r.auto.append(svg("path", { d: "M-7 2 v-3 l2 -4 h7 l3 4 h2 v3 z", fill: "#FBFAF3" }));
+    r.auto.append(svg("circle", { cx: -4, cy: 3, r: 2, fill: "#1F3B2D" }));
+    r.auto.append(svg("circle", { cx: 4, cy: 3, r: 2, fill: "#1F3B2D" }));
+    karte.append(r.auto);
+  }
+}
+
+const zuMin = (hhmm) => { const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || ""); return m ? +m[1] * 60 + +m[2] : null; };
+const zuUhr = (min) => { const m = ((Math.round(min) % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+function abfahrten() {
+  const a = store.get().autos || {};
+  return { essen: zuMin((a.essen || {}).ab), dietz: zuMin((a.dietz || {}).ab) };
+}
+function stelle(t, ab) {           // t = Uhrzeit in Minuten
+  for (const [id, r] of Object.entries(ROUTEN)) {
+    const p = Math.max(0, Math.min(1, (t - ab[id]) / FAHRZEIT[id]));
+    const pt = r.spur.getPointAtLength(p * r.len);
+    r.auto.setAttribute("transform", `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+    r.spur.setAttribute("stroke-dashoffset", (r.len * (1 - p)).toFixed(1));
+  }
+}
+let lauf = 0;
+function fahre() {
+  const roh = abfahrten();
+  const beide = roh.essen != null && roh.dietz != null;
+  const ab = { essen: roh.essen ?? roh.dietz ?? 600, dietz: roh.dietz ?? roh.essen ?? 600 };
+  const an = { essen: ab.essen + FAHRZEIT.essen, dietz: ab.dietz + FAHRZEIT.dietz };
+  const t0 = Math.min(ab.essen, ab.dietz), t1 = Math.max(an.essen, an.dietz);
+  const fertig = () => {
+    stelle(t1, ab);
+    $("#zielRing").setAttribute("opacity", 1);
+    $("#uhr").textContent = !beide ? "" : an.essen === an.dietz ? "Gleichzeitig da, um " + zuUhr(an.essen) + " Uhr"
+      : "Zuerst da: " + (an.essen < an.dietz ? "Essen" : "Dietzenbach") + ", um " + zuUhr(Math.min(an.essen, an.dietz)) + " Uhr";
+  };
+  const meins = ++lauf;
+  if (reduziert) return fertig();
+  $("#zielRing").setAttribute("opacity", 0);
+  const dauer = 7000, start = performance.now();
+  (function schritt(jetzt) {
+    if (meins !== lauf) return;
+    const q = Math.min(1, (jetzt - start) / dauer);
+    const t = t0 + (t1 - t0) * q;
+    stelle(t, ab);
+    $("#uhr").textContent = beide ? zuUhr(t) + " Uhr" : "";
+    q < 1 ? requestAnimationFrame(schritt) : fertig();
+  })(start);
+}
+function zeichneAutos() {
+  const roh = abfahrten();
+  [["essen", "#abEssen", "#anEssen"], ["dietz", "#abDietz", "#anDietz"]].forEach(([id, feld, aus]) => {
+    const f = $(feld);
+    if (document.activeElement !== f) f.value = roh[id] != null ? zuUhr(roh[id]) : "";
+    $(aus).textContent = roh[id] != null ? "Ankunft ca. " + zuUhr(roh[id] + FAHRZEIT[id]) + " Uhr" : "Noch keine Abfahrtszeit";
+  });
+}
+document.querySelectorAll("input[data-auto]").forEach((f) => f.addEventListener("change", () => {
+  store.schreibe("autos/" + f.dataset.auto + "/ab", f.value || null).then(fahre);
+}));
+$("#nochmal").addEventListener("click", fahre);
+
+/* ---------- Schnee ---------- */
+(function () {
+  const feld = $("#schnee"), knopf = $("#schneeBtn");
+  let aus = false;
+  try { aus = localStorage.getItem("lindgruen-schnee") === "aus"; } catch (e) {}
+  if (reduziert) { knopf.hidden = true; return; }
+  const n = innerWidth < 700 ? 26 : 48;
+  for (let i = 0; i < n; i++) {
+    const f = document.createElement("i"), g = 3 + Math.random() * 5;
+    f.style.cssText = "left:" + (Math.random() * 100).toFixed(1) + "%;width:" + g.toFixed(1) + "px;height:" + g.toFixed(1) + "px;opacity:" + (.55 + Math.random() * .4).toFixed(2) +
+      ";--dx:" + (Math.random() * 90 - 45).toFixed(0) + "px;animation-duration:" + (11 + Math.random() * 13).toFixed(1) + "s;animation-delay:" + (-Math.random() * 24).toFixed(1) + "s";
+    feld.append(f);
+  }
+  const zeige = () => { feld.hidden = aus; knopf.textContent = aus ? "Schnee einschalten" : "Schnee ausschalten"; };
+  knopf.addEventListener("click", () => { aus = !aus; try { localStorage.setItem("lindgruen-schnee", aus ? "aus" : "an"); } catch (e) {} zeige(); });
+  zeige();
+})();
+
+/* ---------- alles zusammen ---------- */
+function zeichneAlles() {
+  zeichneBring(); zeichneEssen(); zeichneZimmer(); zeichneIdeen(); zeichneInfos(); zeichneAutos(); zeichneKosten(); zeichneWuensche();
+}
+store.on((state, status) => {
+  zeichneAlles();
+  const s = $("#status");
+  const zu = status === "ohne" || status === "falsch";
+  s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : "aus";
+  s.textContent = status === "live" ? "Verbunden, alles wird gespeichert"
+    : status === "demo" ? "Demo-Modus, nur auf diesem Gerät"
+    : zu ? "Link unvollständig" : "Keine Verbindung zur Datenbank";
+  $("#demoHinweis").hidden = status !== "demo";
+  document.body.classList.toggle("gesperrt", zu);
+  $("#sperre").hidden = !zu;
+  $("#sperre").textContent = status === "falsch"
+    ? "Dieser Link passt nicht mehr. Frag Jonathan nach dem aktuellen Link für die Seite."
+    : zu ? "Hier fehlt der geheime Teil des Links. Öffne die Seite bitte über den Link, den Jonathan in die Gruppe geschickt hat. Danach merkt sich dein Gerät den Zugang." : "";
+});
+
+/* ---------- nur im Demo-Modus: Beispiele zum Ausprobieren ---------- */
+$("#demoFuellen").addEventListener("click", () => {
+  if (store.modus !== "demo") return;
+  const t = Date.now();
+  store.schreibe("bring", {
+    b1: { t: "Raclette-Käse", c: "essen", von: "Anja", by: "Anja", ts: t },
+    b2: { t: "Baguette und Kartoffeln", c: "essen", von: "Jonathan", dort: true, ts: t + 1 },
+    b7: { t: "Sprudel und Saft", c: "trinken", von: "Cornelis", dort: true, ts: t + 6 },
+    b3: { t: "Glühwein", c: "trinken", von: "Tom", by: "Tom", ok: true, ts: t + 2 },
+    b4: { t: "Wizard", c: "spiele", von: "Jonathan", by: "Jonathan", ts: t + 3 },
+    b5: { t: "Christbaumkugeln", c: "deko", von: "Gunda", ts: t + 4 },
+    b6: { t: "Saunatücher", c: "sonst", von: "Tabea", by: "Tabea", ts: t + 5 } });
+  store.schreibe("essen", { d24: { abend: { was: "Raclette", info: "Vorweg Feldsalat mit Walnüssen\nZum Nachtisch Bratapfel mit Vanillesoße", wer: { Anja: true, Tom: true } } },
+                            d25: { frueh: { was: "Langes Frühstück", wer: { Cornelis: true } } } });
+  store.schreibe("zimmer", { z1: { a: "Tabea", b: "Tom" }, z2: { a: "Josephine", b: "Cornelis" } });
+  store.schreibe("ideen", { i1: { t: "Sauna-Abend im Haus", von: "Tom", ts: t, ja: { Tom: true, Tabea: true, Gunda: true } },
+                            i2: { t: "Winterwanderung ab Haustür", von: "Anja", ts: t + 1, ja: { Anja: true } } });
+  store.schreibe("eck", { anreise: "Beispiel: ab 16 Uhr", essen: "Tabea: vegetarisch\nTom: mag keinen Rosenkohl" });
+  const alle = {}; LEUTE.forEach((n) => { alle[n] = true; });
+  store.schreibe("kosten", { k1: { t: "Einkauf am 23.12.", b: 18430, wer: "Anja", fuer: alle, ts: t },
+                             k2: { t: "Glühwein und Punsch", b: 3250, wer: "Tom", fuer: alle, ts: t + 1 },
+                             k3: { t: "Eintritt Laacher See, Führung", b: 2400, wer: "Jonathan", fuer: { Jonathan: true, Josephine: true, Cornelis: true }, ts: t + 2 } });
+  store.schreibe("wuensche", { w1: { t: "Ich hätte gern eine Liste für Spiele, die wir spielen wollen.", von: "Tabea", ts: t } });
+  store.schreibe("notizen", { n1: { t: "Wichteln: höchstens 20 Euro pro Geschenk.", von: "Josephine", ts: t },
+                              n2: { t: "Wer hat noch eine Lichterkette für den Baum?", von: "Gunda", ts: t + 1 } });
+  toast("Beispiele geladen. Sie liegen nur auf diesem Gerät.");
+});
+$("#demoLeeren").addEventListener("click", () => {
+  if (store.modus !== "demo") return;
+  ["bring", "essen", "zimmer", "ideen", "eck", "notizen", "autos", "kosten", "wuensche"].forEach((k) => store.schreibe(k, null));
+  toast("Alles geleert.");
+});
+
+zeichneWer();
+zeichneCountdown();
+baueKarte();
+store.start();
+let ersteFahrt = false;
+store.on(() => { if (!ersteFahrt && (store.live ? $("#status").dataset.s === "live" : true)) { ersteFahrt = true; setTimeout(fahre, 500); } });
+if (!store.live) { ersteFahrt = true; setTimeout(fahre, 500); }
+else setTimeout(() => { if (!ersteFahrt) { ersteFahrt = true; fahre(); } }, 4000);
+</script>
+</body>
+</html>
