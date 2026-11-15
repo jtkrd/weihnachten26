@@ -313,11 +313,11 @@ body.tor-zu > header, body.tor-zu > section, body.tor-zu > main, body.tor-zu > f
 .tuer-innen{position:absolute;inset:0;border-radius:6px;background:#12261D;box-shadow:inset 0 0 26px #000;display:grid;place-items:center}
 .tuer-innen svg{width:130px;height:130px}
 .tuer-blatt{position:absolute;inset:0;border-radius:6px;background:var(--hagebutte);outline:2px dashed var(--kerze);outline-offset:-9px;display:grid;place-items:center;transform-origin:left center;transition:transform 1.1s cubic-bezier(.6,0,.2,1);box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.tuer-blatt span{font-family:var(--serif);font-size:104px;line-height:1;color:var(--kerze)}
-.tuer-blatt i{position:absolute;right:20px;top:50%;width:13px;height:13px;border-radius:50%;background:var(--kerze)}
+.tuer-blatt svg{width:100%;height:100%;display:block}
+.tuer-blatt i{position:absolute;right:18px;top:46%;width:13px;height:13px;border-radius:50%;background:var(--kerze)}
 .tuer.offen .tuer-blatt{transform:rotateY(-108deg)}
-.tuer-blatt span,.tuer-blatt i{transition:opacity .25s .3s}
-.tuer.offen .tuer-blatt span,.tuer.offen .tuer-blatt i{opacity:0}
+.tuer-blatt svg,.tuer-blatt i{transition:opacity .25s .3s}
+.tuer.offen .tuer-blatt svg,.tuer.offen .tuer-blatt i{opacity:0}
 .tuer.wackel{animation:wackel .45s}
 @keyframes wackel{20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
 .tor-text{font-size:18px;color:var(--lind-hell);max-width:24em;margin:0 auto}
@@ -344,7 +344,7 @@ body.tor-zu > header, body.tor-zu > section, body.tor-zu > main, body.tor-zu > f
     <p class="tor-titel">Weihnachten 2026</p>
     <div class="tuer" id="tuer" aria-hidden="true">
       <div class="tuer-innen"><svg viewBox="0 0 120 120"><path d="M60 22L80 50H70L88 74H77L96 100H24L43 74H32L50 50H40Z" fill="#C6D89C"/><rect x="54" y="100" width="12" height="10" fill="#6F8B45"/><path transform="translate(60 19) scale(1.6) translate(0 33.5)" d="M0 -40l2.4 5 5.4.6-4 3.8 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.8 5.4-.6z" fill="#E2A93B"/><circle cx="56" cy="44" r="3.5" fill="#B5302F"/><circle cx="68" cy="64" r="3.500" fill="#FBFAF3"/><circle cx="48" cy="68" r="3.5" fill="#B5302F"/><circle cx="72" cy="88" r="3.5" fill="#E2A93B"/><circle cx="44" cy="90" r="3.5" fill="#FBFAF3"/></svg></div>
-      <div class="tuer-blatt"><span>24</span><i></i></div>
+      <div class="tuer-blatt"><svg viewBox="0 0 200 260" aria-hidden="true"><path d="M100 20l3.4 7 7.600.9-5.600 5.300 1.400 7.600-6.800-3.700-6.800 3.700 1.400-7.600-5.600-5.300 7.600-.9z" fill="#E2A93B"/><rect x="126" y="62" width="11" height="24" fill="#8F2222" stroke="#1F3B2D" stroke-width="1.5"/><rect x="60" y="96" width="80" height="62" fill="#FBFAF3"/><path d="M46 100L100 54l54 46z" fill="#1F3B2D"/><path d="M74 76L100 54l26 22c-6 5-11-2-17 0s-11 5-17 0-11 3-18 0z" fill="#FBFAF3"/><rect x="92" y="124" width="16" height="34" rx="2" fill="#8F2222"/><rect x="68" y="110" width="14" height="14" rx="2" fill="#E2A93B"/><rect x="118" y="110" width="14" height="14" rx="2" fill="#E2A93B"/><circle cx="30" cy="196" r="12" fill="#F6E3C5"/><path d="M18 190l12-22 12 22z" fill="#C6D89C"/><circle cx="30" cy="167" r="4" fill="#FBFAF3"/><circle cx="26" cy="196" r="1.5" fill="#1F3B2D"/><circle cx="34" cy="196" r="1.5" fill="#1F3B2D"/><path d="M26 201q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="54" cy="188" r="12" fill="#F6E3C5"/><path d="M42 182l12-22 12 22z" fill="#E2A93B"/><circle cx="54" cy="159" r="4" fill="#FBFAF3"/><circle cx="50" cy="188" r="1.5" fill="#1F3B2D"/><circle cx="58" cy="188" r="1.5" fill="#1F3B2D"/><path d="M50 193q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="78" cy="196" r="12" fill="#F6E3C5"/><path d="M66 190l12-22 12 22z" fill="#FBFAF3"/><circle cx="78" cy="167" r="4" fill="#E2A93B"/><circle cx="74" cy="196" r="1.5" fill="#1F3B2D"/><circle cx="82" cy="196" r="1.5" fill="#1F3B2D"/><path d="M74 201q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="102" cy="188" r="12" fill="#F6E3C5"/><path d="M90 182l12-22 12 22z" fill="#1F3B2D"/><circle cx="102" cy="159" r="4" fill="#FBFAF3"/><circle cx="98" cy="188" r="1.5" fill="#1F3B2D"/><circle cx="106" cy="188" r="1.5" fill="#1F3B2D"/><path d="M98 193q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="126" cy="196" r="12" fill="#F6E3C5"/><path d="M114 190l12-22 12 22z" fill="#C6D89C"/><circle cx="126" cy="167" r="4" fill="#FBFAF3"/><circle cx="122" cy="196" r="1.5" fill="#1F3B2D"/><circle cx="130" cy="196" r="1.5" fill="#1F3B2D"/><path d="M122 201q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="150" cy="188" r="12" fill="#F6E3C5"/><path d="M138 182l12-22 12 22z" fill="#E2A93B"/><circle cx="150" cy="159" r="4" fill="#FBFAF3"/><circle cx="146" cy="188" r="1.5" fill="#1F3B2D"/><circle cx="154" cy="188" r="1.5" fill="#1F3B2D"/><path d="M146 193q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><circle cx="174" cy="196" r="12" fill="#F6E3C5"/><path d="M162 190l12-22 12 22z" fill="#FBFAF3"/><circle cx="174" cy="167" r="4" fill="#E2A93B"/><circle cx="170" cy="196" r="1.5" fill="#1F3B2D"/><circle cx="178" cy="196" r="1.5" fill="#1F3B2D"/><path d="M170 201q4 3 8 0" fill="none" stroke="#8F2222" stroke-width="1.5" stroke-linecap="round"/><path d="M14 240v-26c14-10 28-8 42-3s28 6 44 0 30-7 44-2 30 5 42 1v30z" fill="#FBFAF3"/></svg><i></i></div>
     </div>
     <p class="tor-text" id="torText" role="status">Einen Moment …</p>
     <div class="tor-form" id="torForm" hidden>
@@ -576,6 +576,7 @@ body.tor-zu > header, body.tor-zu > section, body.tor-zu > main, body.tor-zu > f
       <button class="btn leise klein" id="schneeBtn" type="button">Schnee ausschalten</button>
       <button class="btn leise klein" id="sichern" type="button">Sicherung herunterladen</button>
       <button class="btn leise klein" id="einspielen" type="button">Sicherung einspielen</button>
+      <button class="btn leise klein" id="tuerZu" type="button" hidden>Türchen wieder schließen</button>
       <button class="btn leise klein" id="stammBtn" type="button" hidden>Stammdaten ändern</button>
       <input type="file" id="sicherungDatei" accept="application/json,.json" hidden>
     </span>
@@ -1757,6 +1758,13 @@ function zeichneTor(status) {
     : art === "einrichten" ? (torBearbeiten ? "Stammdaten ändern. Speichern gilt sofort für alle." : "Die Seite ist noch nicht eingerichtet. Füg hier die Stammdaten ein.")
     : status === "aus" ? "Gerade keine Verbindung. Sobald das Netz da ist, geht es weiter." : "Einen Moment …";
 }
+$("#tuerZu").addEventListener("click", () => {
+  tuerOffen = "";
+  try { localStorage.removeItem("lindgruen-tuer"); } catch (e) {}
+  $("#torFeld").value = ""; $("#torFehler").textContent = "";
+  zeichneTor($("#status").dataset.roh);
+  scrollTo(0, 0);
+});
 function oeffneTuer() {
   const s = stamm(); if (!s) return;
   if (glatt($("#torFeld").value) !== glatt(s.codewort)) {
@@ -1804,6 +1812,7 @@ store.on((state, status, offen) => {
   s.dataset.roh = status;
   zeichneTor(status);
   $("#stammBtn").hidden = !(store.live && ich && ich === ORGA);
+  $("#tuerZu").hidden = !(stamm() && glatt(stamm().codewort));
   const zu = status === "ohne" || status === "falsch";
   s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : status === "lade" ? "lade" : "aus";
   s.textContent = status === "live" ? (offen ? "Speichert …" : "Verbunden, alles gespeichert")
