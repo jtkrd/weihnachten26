@@ -232,6 +232,7 @@ dialog .chip[aria-pressed="true"]{background:var(--tanne);border-color:var(--tan
 .status[data-s="live"]{--s:#3C8B4D}
 .status[data-s="demo"]{--s:var(--kerze)}
 .status[data-s="aus"]{--s:var(--hagebutte)}
+.status[data-s="lade"]{--s:#999}
 .demo-hinweis{background:#FFF6D6;border-left:5px solid var(--kerze);padding:12px 16px;border-radius:4px;margin-top:18px;font-size:15px}
 .demo-hinweis[hidden]{display:none}
 .demo-knoepfe{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -259,6 +260,13 @@ body.gesperrt main section{display:none}
 .bilanz .summe{font-family:var(--serif);font-size:26px}
 .fehler{color:var(--hagebutte);font-weight:600;font-size:15px;margin-top:12px}
 .fehler:empty{display:none}
+.text{display:block;max-width:100%;background:transparent;border:0;padding:2px 4px;margin:-2px -4px;border-radius:6px;text-align:left;font-weight:inherit;white-space:inherit;overflow-wrap:anywhere}
+.text:hover{background:var(--lind-hell)}
+.zettel footer .text{display:inline;margin:0 0 0 6px;padding:2px 6px;text-decoration:underline;font-weight:600}
+.paare{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+dialog .paare label{margin:0}
+body.laedt main .blatt,body.laedt .autos input{opacity:.45;pointer-events:none}
+body.laedt .leer{visibility:hidden}
 .wunsch h3{font-size:24px}
 .wunsch > p{margin:6px 0 14px;max-width:36em}
 .wunsch .liste{margin-top:14px}
@@ -372,7 +380,7 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
 </section>
 
 <main>
-<div class="wrap"><div class="demo-hinweis sperre" id="sperre" hidden></div></div>
+<div class="wrap"><div class="demo-hinweis sperre" id="sperre" hidden></div><div class="demo-hinweis sperre" id="ladeHinweis" role="status" hidden></div></div>
 <section class="abschnitt" id="mitbringen">
   <div class="wrap">
     <div class="kopf"><div><h2>Mitbringliste</h2>
@@ -606,14 +614,19 @@ function h(tag, attrs, ...kids) {
   return el;
 }
 const neueId = () => "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-const eintraege = (o) => Object.entries(o || {}).filter(([, v]) => v && typeof v === "object");
+/* Nur vollständige Einträge: Reste ohne Text (etwa wenn jemand etwas ändert, das ein anderer gerade gelöscht hat) bleiben draußen. */
+const eintraege = (o) => Object.entries(o || {}).filter(([, v]) => v && typeof v === "object" && typeof v.t === "string" && v.t);
 
 /* ---------- Speicher: Firebase (alle) oder localStorage (Demo) ---------- */
-/* Speicher.
-   Jede Änderung landet zuerst im Ausgangskorb (auch auf dem Gerät gesichert) und wird so lange
+/* Jede Änderung landet zuerst im Ausgangskorb (auch auf dem Gerät gesichert) und wird so lange
    erneut gesendet, bis die Datenbank sie bestätigt hat. Angezeigt wird immer:
    bestätigter Stand der Datenbank + alles, was noch im Ausgangskorb liegt.
-   So verschwindet kein Eintrag, wenn das Netz hakt oder die Verbindung neu aufgebaut wird. */
+   So verschwindet kein Eintrag, wenn das Netz hakt oder die Verbindung neu aufgebaut wird.
+
+   Damit eine liegengebliebene Änderung nichts Neueres überschreibt, merkt sich jede Änderung,
+   was vorher an der Stelle stand. Wurde sie ohne Verbindung gemacht, ist ein Sendeversuch gescheitert
+   oder wartet sie schon länger, fragt die Seite vor dem Senden nach: Steht dort inzwischen etwas
+   anderes, wird sie verworfen und das Gerät sagt Bescheid. */
 const VERSION = 2;
 const store = (() => {
   // demo: keine Datenbank eingetragen | ohne: Datenbank da, aber Link ohne Schlüssel | sonst live
@@ -621,14 +634,19 @@ const store = (() => {
   const live = modus === "live";
   const basis = CONFIG.dbUrl.replace(/\/+$/, "") + "/raum/" + SCHLUESSEL;
   const url = (pfad) => basis + (pfad ? "/" + pfad : "") + ".json";
-  const LS_DEMO = "lindgruen-demo-daten", LS_KORB = "lindgruen-korb-" + SCHLUESSEL;
+  const LS_DEMO = "lindgruen-demo-daten", LS_KORB = "lindgruen-korb-" + SCHLUESSEL, LS_STAND = "lindgruen-stand-" + SCHLUESSEL;
+  const FRIST = 15000;    // so lange darf eine Anfrage höchstens dauern
+  const FRISCH = 30000;   // wartet eine Änderung länger, wird sie vor dem Senden abgeglichen
   const horcher = [];
   let server = {};        // letzter bestätigter Stand der Datenbank
   let state = {};         // server + eigene Änderungen, die noch unterwegs sind
-  let korb = [];          // Ausgangskorb: [{ pfad, wert, art: "put" | "patch", ts }]
-  let status = live ? "aus" : modus;
+  let korb = [];          // Ausgangskorb: [{ pfad, wert, art: "put" | "patch", ts, basis, gab, blind }]
+  // lade: noch kein Stand von der Datenbank | live | aus: keine Verbindung | falsch: Schlüssel passt nicht
+  let status = live ? "lade" : modus;
+  let geladen = false;    // es gibt etwas anzuzeigen (frisch oder vom letzten Besuch)
+  let frisch = false;     // die Datenbank hat sich in dieser Sitzung gemeldet
   let es = null, letztesSignal = 0, sendet = false, unterwegs = null, versuch = 0;
-  let wiederTimer = null, neuTimer = null, veraltet = false, versionGemeldet = false;
+  let wiederTimer = null, neuTimer = null, standTimer = null, veraltet = false, versionGemeldet = false;
 
   const kopie = (o) => (o === undefined ? null : JSON.parse(JSON.stringify(o)));
   const teile = (pfad) => String(pfad).split("/").filter(Boolean);
@@ -637,6 +655,17 @@ const store = (() => {
     const o = {};
     for (const [k, v] of Object.entries(w)) { const x = ohneNull(v); if (x !== null && x !== undefined) o[k] = x; }
     return Object.keys(o).length ? o : null;
+  }
+  function kanon(w) {                 // gleiche Daten ergeben denselben Text, egal in welcher Reihenfolge die Felder stehen
+    w = ohneNull(w === undefined ? null : w);
+    if (w === null || typeof w !== "object") return JSON.stringify(w);
+    return "{" + Object.keys(w).sort().map((k) => JSON.stringify(k) + ":" + kanon(w[k])).join(",") + "}";
+  }
+  const gleich = (a, b) => kanon(a) === kanon(b);
+  function lies(wurzel, pfad) {
+    let o = wurzel;
+    for (const k of teile(pfad)) { if (o === null || typeof o !== "object") return null; o = o[k]; }
+    return o === undefined ? null : o;
   }
   function setze(wurzel, pfad, wert) { // gibt die (evtl. neue) Wurzel zurück
     const keys = teile(pfad);
@@ -661,9 +690,17 @@ const store = (() => {
   function baue() { let s = kopie(server) || {}; for (const op of korb) s = wende(s, op); state = s; }
   function melde() { horcher.forEach((f) => f(state, status, korb.length)); }
   function merkeKorb() { try { localStorage.setItem(LS_KORB, JSON.stringify(korb)); } catch (e) {} }
+  function merkeStand() {              // letzten bestätigten Stand aufs Gerät legen: beim nächsten Öffnen ist sofort etwas da
+    if (!frisch || standTimer) return;
+    standTimer = setTimeout(() => { standTimer = null; try { localStorage.setItem(LS_STAND, JSON.stringify(server)); } catch (e) {} }, 800);
+  }
   function ueberlappt(a, b) {
     a = teile(a).join("/"); b = teile(b).join("/");
     return !a || !b || a === b || a.startsWith(b + "/") || b.startsWith(a + "/");
+  }
+  function holen(adresse, opt, frist) { // fetch mit Frist: eine hängende Anfrage darf den Ausgangskorb nicht blockieren
+    const c = new AbortController(), t = setTimeout(() => c.abort(), frist || FRIST);
+    return fetch(adresse, Object.assign({ signal: c.signal }, opt)).finally(() => clearTimeout(t));
   }
 
   /* ----- Empfangen: Live-Verbindung zur Datenbank ----- */
@@ -672,8 +709,9 @@ const store = (() => {
     if (alsPatch) for (const [k, v] of Object.entries(daten || {})) server = setze(server, pfad + "/" + k, v);
     else server = setze(server, pfad, daten);
     if (unterwegs && ueberlappt(pfad, unterwegs.pfad)) unterwegs.echo = true;
-    status = "live"; baue(); melde();
+    status = "live"; geladen = frisch = true; baue(); melde(); merkeStand();
     pruefeVersion();
+    if (korb.length) sende();
   }
   function verbinde() {
     if (!live || status === "falsch") return;
@@ -688,21 +726,24 @@ const store = (() => {
     meins.addEventListener("auth_revoked", () => { if (es === meins) pruefe(); });
     meins.onerror = () => {
       if (es !== meins) return;
-      if (status === "live") { status = "aus"; melde(); }
+      if (status === "live" || status === "lade") { status = "aus"; melde(); }
       // readyState 2 = endgültig zu: dann baut der Browser nicht selbst neu auf
       if (meins.readyState === 2) neuTimer = setTimeout(verbinde, 3000);
     };
   }
   function falscherSchluessel() {
     if (es) { es.onerror = null; es.close(); }
-    try { localStorage.removeItem("lindgruen-k"); } catch (e) {}
+    try { localStorage.removeItem("lindgruen-k"); localStorage.removeItem(LS_STAND); } catch (e) {}
     status = "falsch"; melde();
   }
-  function pruefe() {                  // passt der Schlüssel? Die Datenbank antwortet sonst mit 401.
-    fetch(url("") + "?shallow=true", { cache: "no-store" })
-      .then((r) => (r.status === 401 || r.status === 403) ? falscherSchluessel() : verbinde())
-      .catch(() => verbinde());
+  /* Passt der Schlüssel? true: ja | false: nein, die Datenbank antwortet mit 401 | null: gerade nicht zu klären */
+  async function schluesselPasst() {
+    try {
+      const r = await holen(url("") + "?shallow=true", { cache: "no-store" });
+      return (r.status === 401 || r.status === 403) ? false : r.ok ? true : null;
+    } catch (e) { return null; }
   }
+  function pruefe() { schluesselPasst().then((passt) => (passt === false ? falscherSchluessel() : verbinde())); }
   function auffrischen() {             // Gerät war im Hintergrund oder offline: Verbindung prüfen
     if (!live || status === "falsch") return;
     if (status !== "live" || Date.now() - letztesSignal > 40000) verbinde();
@@ -715,18 +756,54 @@ const store = (() => {
   }
 
   /* ----- Senden: Ausgangskorb der Reihe nach abarbeiten, bei Fehlern wiederholen ----- */
+  /* Abgleich für Änderungen, die ohne Verbindung gemacht wurden oder schon länger warten.
+     senden: an der Stelle steht noch, was beim Ändern dort stand | erledigt: die Änderung ist schon drin
+     konflikt: inzwischen steht dort etwas anderes | gesperrt: Schlüssel passt nicht | fehler: später noch mal */
+  async function abgleich(op) {
+    let jetzt;
+    try {
+      const r = await holen(url(op.pfad), { cache: "no-store" });
+      if (r.status === 401 || r.status === 403) return "gesperrt";
+      if (!r.ok) return "fehler";
+      jetzt = await r.json();
+    } catch (e) { return "fehler"; }
+    if (op.art !== "patch") return gleich(jetzt, op.wert) ? "erledigt" : gleich(jetzt, op.basis) ? "senden" : "konflikt";
+    if (op.gab && jetzt === null) return "konflikt";          // der Eintrag wurde inzwischen gelöscht
+    let offen = false;
+    for (const [k, v] of Object.entries(op.wert || {})) {
+      const j = lies(jetzt, k);
+      if (gleich(j, v)) continue;
+      if (!gleich(j, (op.basis || {})[k])) return "konflikt";
+      offen = true;
+    }
+    return offen ? "senden" : "erledigt";
+  }
+  function verwirf(text) { korb.shift(); merkeKorb(); baue(); melde(); if (text) toast(text, null, 9000); }
+  function spaeter() { versuch++; wiederTimer = setTimeout(sende, Math.min(15000, 600 * 2 ** Math.min(versuch, 5))); }
+
   async function sende() {
     if (sendet || !live || status === "falsch") return;
     sendet = true; clearTimeout(wiederTimer);
     while (korb.length) {
-      const op = unterwegs = korb[0];
-      op.echo = false;
+      const op = korb[0];
+      if (op.basis !== undefined && (op.blind || Date.now() - (op.ts || 0) > FRISCH)) {
+        const a = await abgleich(op);
+        if (a === "gesperrt") { sendet = false; falscherSchluessel(); return; }
+        if (a === "fehler") { spaeter(); break; }
+        if (a === "erledigt") { verwirf(); continue; }
+        if (a === "konflikt") {
+          verwirf("Eine ältere Änderung von diesem Gerät wurde nicht übernommen, weil dort inzwischen etwas anderes steht. Schau kurz nach und trag sie bei Bedarf noch mal ein.");
+          continue;
+        }
+        op.blind = false; op.ts = Date.now();          // abgeglichen: gilt jetzt wieder als frisch
+      }
+      unterwegs = op; op.echo = false;
       let r = null;
-      const body = JSON.stringify(op.wert);
-      const anfrage = (keepalive) => fetch(url(op.pfad),
+      const body = JSON.stringify(op.wert), frist = FRIST + body.length / 10;
+      const anfrage = (keepalive) => holen(url(op.pfad),
         op.art === "patch" ? { method: "PATCH", body, keepalive }
         : op.wert === null ? { method: "DELETE", keepalive }
-        : { method: "PUT", body, keepalive });
+        : { method: "PUT", body, keepalive }, frist);
       try {
         r = await anfrage(body.length < 60000);        // keepalive: Anfrage überlebt das Schließen der Seite
       } catch (e) {
@@ -736,17 +813,21 @@ const store = (() => {
       if (r && r.ok) {
         // Bestätigt. Kam inzwischen schon eine Meldung der Datenbank zu diesem Pfad, gilt deren Stand.
         if (!op.echo) server = wende(server, op);
-        korb.shift(); merkeKorb(); versuch = 0; baue(); melde();
+        korb.shift(); merkeKorb(); versuch = 0; baue(); melde(); merkeStand();
         continue;
       }
-      if (r && (r.status === 401 || r.status === 403)) { sendet = false; falscherSchluessel(); return; }
-      if (r && r.status >= 400 && r.status < 500 && r.status !== 408 && r.status !== 429) {
-        korb.shift(); merkeKorb(); baue(); melde();   // die Datenbank lehnt diese eine Änderung ab
-        toast("Eine Änderung hat die Datenbank abgelehnt. Bitte noch mal eintragen.");
-        continue;
+      let abgelehnt = r && r.status >= 400 && r.status < 500 && r.status !== 408 && r.status !== 429;
+      if (r && (r.status === 401 || r.status === 403)) {
+        // 401 heißt entweder: Schlüssel falsch, oder: die Regeln der Datenbank lehnen genau diese Änderung ab.
+        const passt = await schluesselPasst();
+        if (passt === false) { sendet = false; falscherSchluessel(); return; }
+        abgelehnt = passt === true;
       }
-      versuch++;                                       // Netz- oder Serverfehler: gleich noch mal
-      wiederTimer = setTimeout(sende, Math.min(15000, 600 * 2 ** Math.min(versuch, 5)));
+      if (abgelehnt) { verwirf("Eine Änderung hat die Datenbank abgelehnt. Bitte noch mal eintragen."); continue; }
+      // Netz- oder Serverfehler: gleich noch mal. Unklar ist, ob die Änderung angekommen ist und was
+      // andere inzwischen geändert haben, deshalb vor dem nächsten Versuch erst abgleichen.
+      op.blind = true; merkeKorb();
+      spaeter();
       break;
     }
     sendet = false; melde();
@@ -759,21 +840,35 @@ const store = (() => {
       return Promise.resolve(true);
     }
     if (!live || status === "falsch") return Promise.resolve(false);
+    // Merken, was der Mensch vor dem Bildschirm an dieser Stelle gesehen hat
+    if (op.art === "patch") {
+      op.basis = {};
+      for (const k of Object.keys(op.wert || {})) op.basis[k] = kopie(lies(state, op.pfad + "/" + k));
+      op.gab = lies(state, op.pfad) !== null;
+    } else op.basis = kopie(lies(state, op.pfad));
+    op.blind = status !== "live";
     korb.push(op); merkeKorb(); baue(); melde(); sende();
     return Promise.resolve(true);
   }
-  /* schreibe: ersetzt den Wert an einem Pfad (null löscht). aendere: ändert nur die genannten Felder. */
+  /* schreibe: ersetzt den Wert an einem Pfad (null löscht).
+     aendere: ändert nur die genannten Felder; ein Feldname darf auch ein Unterpfad sein ("wer/Anja"). */
   function schreibe(pfad, wert) { return lege({ pfad, wert: kopie(wert), art: "put", ts: Date.now() }); }
   function aendere(pfad, felder) { return lege({ pfad, wert: kopie(felder), art: "patch", ts: Date.now() }); }
 
   function start() {
     if (live) {
+      try {                             // Stand vom letzten Besuch: sofort etwas zu sehen, auch bei schlechtem Netz
+        const s = JSON.parse(localStorage.getItem(LS_STAND));
+        if (s && typeof s === "object") { server = s; geladen = true; }
+      } catch (e) {}
       try {                             // liegengebliebene Änderungen vom letzten Besuch nachreichen
         const alt = JSON.parse(localStorage.getItem(LS_KORB)) || [];
         korb = alt.filter((o) => o && typeof o.pfad === "string" && (o.art === "put" || o.art === "patch") && Date.now() - (o.ts || 0) < 3 * 864e5);
+        korb.forEach((o) => { o.blind = true; });
       } catch (e) { korb = []; }
       baue();
       pruefe(); sende();
+      setTimeout(() => { if (status === "lade") { status = "aus"; melde(); } }, 8000);
       document.addEventListener("visibilitychange", () => { if (!document.hidden) auffrischen(); else { versuch = 0; sende(); } });
       window.addEventListener("pageshow", auffrischen);
       window.addEventListener("online", auffrischen);
@@ -781,14 +876,15 @@ const store = (() => {
       setInterval(() => { if (!document.hidden && status !== "falsch" && Date.now() - letztesSignal > 75000) verbinde(); }, 15000);
     } else if (modus === "demo") {
       try { server = JSON.parse(localStorage.getItem(LS_DEMO)) || {}; } catch (e) { server = {}; }
-      baue();
+      geladen = true; baue();
       window.addEventListener("storage", (e) => {
         if (e.key === LS_DEMO) { try { server = JSON.parse(e.newValue) || {}; } catch (x) {} baue(); melde(); }
       });
     }
     melde();
   }
-  return { start, schreibe, aendere, live, modus, get: () => state, on: (f) => horcher.push(f), veraltet: () => veraltet };
+  return { start, schreibe, aendere, live, modus, get: () => state, on: (f) => horcher.push(f),
+           veraltet: () => veraltet, geladen: () => geladen };
 })();
 
 /* ---------- Wer bin ich ---------- */
@@ -820,8 +916,32 @@ $("#ichBtn").addEventListener("click", () =>
 
 /* ---------- Dialoge ---------- */
 const dlg = $("#dlg");
-dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
-function oeffne(...inhalt) { dlg.replaceChildren(...inhalt); dlg.showModal(); }
+/* Ein Tipp neben den Dialog schließt ihn, aber nicht mehr, sobald etwas eingetippt oder angewählt wurde. */
+let dlgGeaendert = false;
+dlg.addEventListener("input", () => { dlgGeaendert = true; });
+dlg.addEventListener("click", (e) => {
+  if (e.target !== dlg || dlgGeaendert) return;
+  const r = dlg.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlg.close();
+});
+function oeffne(...inhalt) { dlgGeaendert = false; dlg.replaceChildren(...inhalt); dlg.showModal(); }
+
+/* Hat jemand anderes ein Feld geändert, während der Dialog offen war? Dann einmal warnen, statt still zu überschreiben.
+   felder: [Bezeichnung, Wert beim Öffnen, Wert jetzt in der Datenbank, neuer Wert]. Gibt true zurück, wenn gespeichert werden darf. */
+function waechter(warn) {
+  const gesehen = new Map();
+  return (felder) => {
+    const fremd = [];
+    for (const [name, anfang, jetzt, neu] of felder) {
+      const bekannt = gesehen.has(name) ? gesehen.get(name) : anfang;
+      if (neu !== anfang && jetzt !== bekannt && jetzt !== neu) fremd.push(name + (jetzt ? " ist jetzt „" + jetzt + "“" : " ist jetzt leer"));
+      gesehen.set(name, jetzt);
+    }
+    if (!fremd.length) return true;
+    warn.textContent = "Inzwischen hat jemand anderes hier etwas geändert: " + fremd.join("; ") + ". Übernimm es in deinen Text oder tipp noch mal auf Speichern, um es zu ersetzen.";
+    return false;
+  };
+}
 
 function namenDialog({ titel, hinweis, aktuell, wahl, leerText, leer, extra }) {
   const mehr = (extra || []).concat(leer ? [[leerText, leer]] : []);
@@ -837,17 +957,27 @@ function namenDialog({ titel, hinweis, aktuell, wahl, leerText, leer, extra }) {
   );
 }
 
-function textDialog({ titel, hinweis, label, wert, platzhalter, speichern, mehrzeilig, knopf }) {
+/* lies (optional): liefert den Wert, der jetzt gerade gespeichert ist. Damit merkt der Dialog, wenn sich
+   während des Tippens etwas geändert hat. Ohne Änderung am Text wird gar nichts gespeichert. */
+function textDialog({ titel, hinweis, label, wert, platzhalter, speichern, mehrzeilig, knopf, lies }) {
   const feld = mehrzeilig
     ? h("textarea", { class: "feld", id: "dlgFeld", maxlength: "600", rows: "5", placeholder: platzhalter || "" })
     : h("input", { class: "feld", id: "dlgFeld", maxlength: "160", placeholder: platzhalter || "" });
+  const anfang = (wert || "").trim();
   feld.value = wert || "";
+  const warn = h("p", { class: "fehler", role: "alert" });
+  const darf = waechter(warn);
   const ok = h("button", { class: "btn", type: "button" }, knopf || "Speichern");
-  aktion(ok, mehrzeilig ? null : feld, () => { dlg.close(); speichern(feld.value.trim()); });
+  aktion(ok, mehrzeilig ? null : feld, () => {
+    const neu = feld.value.trim();
+    if (neu === anfang) { dlg.close(); return; }
+    if (lies && !darf([["Der Eintrag", anfang, (lies() || "").trim(), neu]])) return;
+    dlg.close(); speichern(neu);
+  });
   oeffne(
     h("h3", { id: "dlgTitel" }, titel),
     hinweis && h("p", { class: "hinweis" }, hinweis),
-    h("label", { for: "dlgFeld" }, label), feld,
+    h("label", { for: "dlgFeld" }, label), feld, warn,
     h("div", { class: "dlg-fuss" },
       h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"), ok));
   feld.focus(); if (!mehrzeilig) feld.select();
@@ -855,14 +985,23 @@ function textDialog({ titel, hinweis, label, wert, platzhalter, speichern, mehrz
 
 /* ---------- Toast mit Rückgängig ---------- */
 let toastTimer = null;
-function toast(text, rueck) {
+function toast(text, rueck, dauer) {
   $("#toastText").textContent = text;
   const b = $("#toastBtn");
   b.hidden = !rueck;
   b.onclick = () => { $("#toast").hidden = true; rueck && rueck(); };
   $("#toast").hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { $("#toast").hidden = true; }, rueck ? 7000 : 4500);
+  toastTimer = setTimeout(() => { $("#toast").hidden = true; }, dauer || (rueck ? 7000 : 4500));
+}
+/* Text eines Eintrags: antippen zum Ändern (Tippfehler ausbessern, ohne löschen und neu eintragen). */
+function aendereText(pfad, v, titel, mehrzeilig) {
+  textDialog({ titel, label: "Text", wert: v.t, mehrzeilig,
+    lies: () => { let o = store.get(); for (const k of pfad.split("/")) o = (o || {})[k]; return (o || {}).t; },
+    speichern: (w) => { if (w) store.aendere(pfad, { t: w }); } });
+}
+function textKnopf(pfad, v, titel) {
+  return h("button", { class: "text", type: "button", "aria-label": v.t + ". Text ändern", onclick: () => aendereText(pfad, v, titel) }, h("span", {}, v.t));
 }
 function loesche(pfad, wert, text) {
   store.schreibe(pfad, null);
@@ -934,7 +1073,7 @@ function bringZeile(id, v) {
   const haken = (text) => h("label", { class: "pack" },
     h("input", { type: "checkbox", checked: !!v.ok, onchange: (e) => store.schreibe(pfad + "/ok", e.target.checked ? true : null) }), text);
   return h("li", { class: v.ok ? "gepackt" : "" },
-    h("div", { class: "ding" }, h("span", {}, v.t),
+    h("div", { class: "ding" }, textKnopf(pfad, v, "Eintrag ändern"),
       v.von && h("small", {}, "eingetragen von " + v.von)),
     v.dort
       ? [haken("gekauft"),
@@ -979,26 +1118,35 @@ function essenDialog(t, s, m) {
     b.addEventListener("click", () => {
       gewaehlt.has(n) ? gewaehlt.delete(n) : gewaehlt.add(n);
       b.setAttribute("aria-pressed", String(gewaehlt.has(n)));
+      dlgGeaendert = true;
     });
     return b;
   }));
   const pfad = "essen/" + t.id + "/" + s;
+  const warn = h("p", { class: "fehler", role: "alert" });
+  const darf = waechter(warn);
   const ok = h("button", { class: "btn", type: "button" }, "Speichern");
   aktion(ok, feld, () => {
-    dlg.close();
+    // Nur was hier wirklich geändert wurde, geht an die Datenbank. So bleibt stehen,
+    // was jemand anderes zur selben Mahlzeit eingetragen hat, während der Dialog offen war.
     const was = feld.value.trim(), txt = info.value.trim();
-    const wert = {};
-    if (was) wert.was = was;
-    if (txt) wert.info = txt;
-    if (gewaehlt.size) { wert.wer = {}; gewaehlt.forEach((n) => { wert.wer[n] = true; }); }
-    store.schreibe(pfad, Object.keys(wert).length ? wert : null);
+    const jetzt = ((store.get().essen || {})[t.id] || {})[s] || {};
+    if (!darf([["Der Titel", m.was || "", jetzt.was || "", was], ["Die Beschreibung", m.info || "", jetzt.info || "", txt]])) return;
+    const neu = {};
+    if (was !== (m.was || "")) neu.was = was || null;
+    if (txt !== (m.info || "")) neu.info = txt || null;
+    new Set(LEUTE.concat(Object.keys(m.wer || {}))).forEach((n) => {
+      if (gewaehlt.has(n) !== !!(m.wer || {})[n]) neu["wer/" + n] = gewaehlt.has(n) ? true : null;
+    });
+    dlg.close();
+    if (Object.keys(neu).length) store.aendere(pfad, neu);
   });
   oeffne(
     h("h3", { id: "dlgTitel" }, SLOTS[s] + " am " + t.nr + ".12."),
     h("p", { class: "hinweis" }, t.wt + ", " + t.titel),
     h("label", { for: "dlgFeld" }, "Titel"), feld,
     h("label", { for: "dlgInfo" }, "Beschreibung"), info,
-    h("label", {}, "Wer kümmert sich?"), chips,
+    h("label", {}, "Wer kümmert sich?"), chips, warn,
     h("div", { class: "dlg-fuss" },
       !!(m.was || m.info || gewaehlt.size) && h("button", { class: "btn leise", type: "button",
         onclick: () => { dlg.close(); loesche(pfad, m, SLOTS[s] + " am " + t.nr + ".12. geleert"); } }, "Leeren"),
@@ -1021,9 +1169,13 @@ function zeichneZimmer() {
           onclick: () => namenDialog({
             titel: "Wer schläft hier?", hinweis: "Zimmer " + (i + 1) + ", " + (s === "a" ? "linke" : "rechte") + " Seite",
             aktuell: wer,
-            wahl: (n) => { BETTEN.forEach((b) => { if (b !== p && belegt(b) === n) store.schreibe("zimmer/" + b, null); });
-                           store.schreibe("zimmer/" + p, n); },
-            leerText: "Bett freigeben", leer: wer ? () => store.schreibe("zimmer/" + p, null) : null })
+            wahl: (n) => {            // altes Bett räumen und neues belegen in einem Schritt, mit dem Stand von jetzt
+              const jetzt = store.get().zimmer || {}, neu = {};
+              BETTEN.forEach((b) => { const [bz, bs] = b.split("/"); if (b !== p && (jetzt[bz] || {})[bs] === n) neu[b] = null; });
+              neu[p] = n;
+              store.aendere("zimmer", neu);
+            },
+            leerText: "Bett freigeben", leer: wer ? () => store.aendere("zimmer", { [p]: null }) : null })
         }, wer || "frei");
       })))));
   const drin = BETTEN.map(belegt).filter(Boolean);
@@ -1051,7 +1203,7 @@ function zeichneIdeen() {
         "aria-label": (dabei ? "Stimme zurücknehmen für " : "Stimme geben für ") + v.t,
         onclick: () => mitName(() => store.schreibe("ideen/" + id + "/ja/" + ich, (v.ja || {})[ich] ? null : true)) },
         String(ja.length), h("small", {}, ja.length === 1 ? "Stimme" : "Stimmen")),
-      h("div", { class: "ding" }, h("span", {}, v.t),
+      h("div", { class: "ding" }, textKnopf("ideen/" + id, v, "Idee ändern"),
         h("small", {}, ja.length ? "Dabei: " + ja.join(", ") : "Noch niemand dabei")),
       h("button", { class: "x", type: "button", "aria-label": v.t + " entfernen",
         onclick: () => loesche("ideen/" + id, v, "„" + v.t + "“ entfernt") }, "×"));
@@ -1066,15 +1218,15 @@ function zeichneIdeen() {
 /* ---------- Eckdaten und Pinnwand ---------- */
 function zeichneInfos() {
   const eck = store.get().eck || {};
-  $("#essenHinweis").replaceChildren(h("li", {}, h("button", { type: "button", onclick: () => textDialog({
-      titel: "Wer isst was nicht?", hinweis: "Vegetarisch, Unverträglichkeiten, mag keinen Rosenkohl: alles, was die Köche wissen sollten.",
-      label: "Eine Zeile pro Person", wert: eck.essen, mehrzeilig: true, platzhalter: "Tabea: vegetarisch\nTom: keine Nüsse",
-      speichern: (w) => store.schreibe("eck/essen", w || null) }) },
+  const isst = (eck.isst && typeof eck.isst === "object") ? eck.isst : {};
+  const zeilen = LEUTE.filter((n) => typeof isst[n] === "string" && isst[n]).map((n) => n + ": " + isst[n]);
+  if (typeof eck.essen === "string" && eck.essen) zeilen.push(eck.essen);
+  $("#essenHinweis").replaceChildren(h("li", {}, h("button", { type: "button", onclick: isstDialog },
     h("span", { class: "frage" }, "Wer isst was nicht?"),
-    h("span", { class: "antwort" + (eck.essen ? "" : " offen") }, eck.essen || "Noch nichts eingetragen. Antippen und ergänzen"))));
+    h("span", { class: "antwort" + (zeilen.length ? "" : " offen") }, zeilen.join("\n") || "Noch nichts eingetragen. Antippen und ergänzen"))));
   $("#eckdaten").replaceChildren(...ECKDATEN.map((e) =>
     h("li", {}, h("button", { type: "button", onclick: () => textDialog({
-        titel: e.frage, label: "Antwort", wert: eck[e.id],
+        titel: e.frage, label: "Antwort", wert: eck[e.id], lies: () => (store.get().eck || {})[e.id],
         speichern: (w) => store.schreibe("eck/" + e.id, w || null) }) },
       h("span", { class: "frage" }, e.frage),
       h("span", { class: "antwort" + (eck[e.id] ? "" : " offen") }, eck[e.id] || "Noch offen. Antippen und eintragen")))));
@@ -1082,9 +1234,47 @@ function zeichneInfos() {
   $("#notizen").replaceChildren(...notizen.map(([id, v]) =>
     h("article", {},
       h("p", {}, v.t),
-      h("footer", {}, (v.von || "Jemand") + (v.ts ? ", " + new Date(v.ts).toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : "")),
+      h("footer", {}, (v.von || "Jemand") + (v.ts ? ", " + new Date(v.ts).toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : ""),
+        h("button", { class: "text", type: "button", onclick: () => aendereText("notizen/" + id, v, "Notiz ändern", true) }, "ändern")),
       h("button", { class: "x", type: "button", "aria-label": "Notiz entfernen",
         onclick: () => loesche("notizen/" + id, v, "Notiz entfernt") }, "×"))));
+}
+/* Jede Person hat ihre eigene Zeile. So können mehrere gleichzeitig eintragen, ohne sich etwas zu überschreiben. */
+function isstDialog() {
+  const eck = store.get().eck || {};
+  const isst = (eck.isst && typeof eck.isst === "object") ? eck.isst : {};
+  const reihen = (ich ? [ich].concat(LEUTE.filter((n) => n !== ich)) : LEUTE).map((n) => {
+    const f = h("input", { class: "feld", id: "isst-" + n, maxlength: "160", placeholder: "isst alles", autocomplete: "off" });
+    f.value = typeof isst[n] === "string" ? isst[n] : "";
+    return { n, f, alt: f.value.trim() };
+  });
+  const alleAlt = (typeof eck.essen === "string" ? eck.essen : "").trim();
+  const alle = h("textarea", { class: "feld", id: "isst-alle", maxlength: "600", rows: "3", placeholder: "z. B. Heiligabend gibt es kein Fleisch" });
+  alle.value = alleAlt;
+  const warn = h("p", { class: "fehler", role: "alert" });
+  const darf = waechter(warn);
+  const ok = h("button", { class: "btn", type: "button" }, "Speichern");
+  const sichern = () => {
+    const jetzt = store.get().eck || {}, jetztIsst = (jetzt.isst && typeof jetzt.isst === "object") ? jetzt.isst : {};
+    const a = alle.value.trim();
+    if (!darf(reihen.map((r) => ["Die Zeile von " + r.n, r.alt, String(jetztIsst[r.n] || "").trim(), r.f.value.trim()])
+        .concat([["Der Hinweis für alle", alleAlt, String(jetzt.essen || "").trim(), a]]))) return;
+    const neu = {};
+    reihen.forEach((r) => { const w = r.f.value.trim(); if (w !== r.alt) neu[r.n] = w || null; });
+    dlg.close();
+    if (Object.keys(neu).length) store.aendere("eck/isst", neu);
+    if (a !== alleAlt) store.schreibe("eck/essen", a || null);
+  };
+  ok.addEventListener("click", sichern);
+  reihen.forEach((r) => r.f.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); sichern(); } }));
+  oeffne(
+    h("h3", { id: "dlgTitel" }, "Wer isst was nicht?"),
+    h("p", { class: "hinweis" }, "Vegetarisch, Unverträglichkeiten, mag keinen Rosenkohl: alles, was die Köche wissen sollten. Jede Person hat ihre eigene Zeile."),
+    h("div", { class: "paare" }, reihen.flatMap((r) => [h("label", { for: "isst-" + r.n }, r.n), r.f])),
+    h("label", { for: "isst-alle" }, "Für alle oder sonst noch wichtig"), alle, warn,
+    h("div", { class: "dlg-fuss" },
+      h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"), ok));
+  reihen[0].f.focus();
 }
 aktion($("#notizBtn"), null, () => {
   const t = $("#notizText").value.trim();
@@ -1104,12 +1294,16 @@ function rechneAb(posten) {
   const saldo = {}, gezahlt = {};
   LEUTE.forEach((n) => { saldo[n] = 0; gezahlt[n] = 0; });
   let summe = 0;
-  for (const [, v] of posten) {
-    const fuer = Object.keys(v.fuer || {}).filter((n) => n in saldo);
-    if (!(v.wer in saldo) || !fuer.length || !(v.b > 0)) continue;
-    summe += v.b; gezahlt[v.wer] += v.b; saldo[v.wer] += v.b;
-    fuer.forEach((n) => { saldo[n] -= v.b / fuer.length; });
-  }
+  posten.forEach(([, v], i) => {
+    const fuer = LEUTE.filter((n) => (v.fuer || {})[n]);
+    if (!(v.wer in saldo) || !fuer.length || !(v.b > 0)) return;
+    const b = Math.round(v.b);
+    summe += b; gezahlt[v.wer] += b; saldo[v.wer] += b;
+    // In ganzen Cent teilen. Geht es nicht auf, tragen reihum einzelne Leute einen Cent mehr,
+    // damit die Summe stimmt und "So wird es glatt" zum "Stand pro Person" passt.
+    const teil = Math.floor(b / fuer.length), rest = b - teil * fuer.length;
+    fuer.forEach((n, j) => { saldo[n] -= teil + ((j + i) % fuer.length < rest ? 1 : 0); });
+  });
   // Ausgleich: wer am meisten schuldet, zahlt an den, der am meisten bekommt
   const rest = LEUTE.map((n) => [n, Math.round(saldo[n])]);
   const wege = [];
@@ -1122,13 +1316,15 @@ function rechneAb(posten) {
   return { summe, saldo, gezahlt, wege };
 }
 function zeichneKosten() {
-  const posten = eintraege(store.get().kosten).sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
+  const posten = eintraege(store.get().kosten).filter(([, v]) => v.b > 0 && typeof v.wer === "string")
+    .sort((a, b) => (a[1].ts || 0) - (b[1].ts || 0));
   $("#kostenListe").replaceChildren(...(posten.length ? posten.map(([id, v]) => {
     const fuer = Object.keys(v.fuer || {});
     return h("li", {},
       h("button", { class: "posten", type: "button", "aria-label": v.t + " bearbeiten", onclick: () => kostenDialog(id, v) },
         h("b", {}, v.t),
-        h("small", {}, v.wer + " hat bezahlt, " + (fuer.length === LEUTE.length ? "für alle" : "für " + fuer.join(", ")))),
+        h("small", {}, v.wer + " hat bezahlt, " + (fuer.length === LEUTE.length ? "für alle" : "für " + fuer.join(", "))
+          + (v.ed ? " · zuletzt geändert von " + v.ed : ""))),
       h("span", { class: "betrag" }, euro(v.b)),
       h("button", { class: "x", type: "button", "aria-label": v.t + " entfernen",
         onclick: () => loesche("kosten/" + id, v, "„" + v.t + "“ entfernt") }, "×"));
@@ -1161,12 +1357,12 @@ function kostenDialog(id, v) {
   const fehler = h("p", { class: "fehler", role: "alert" });
   const einzel = h("div", { class: "chips" }, LEUTE.map((n) => {
     const b = h("button", { class: "chip", type: "button", "aria-pressed": String(n === zahler) }, n);
-    b.addEventListener("click", () => { zahler = n; einzel.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); });
+    b.addEventListener("click", () => { zahler = n; dlgGeaendert = true; einzel.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); });
     return b;
   }));
   const viele = h("div", { class: "chips" }, LEUTE.map((n) => {
     const b = h("button", { class: "chip", type: "button", "aria-pressed": String(fuer.has(n)) }, n);
-    b.addEventListener("click", () => { fuer.has(n) ? fuer.delete(n) : fuer.add(n); b.setAttribute("aria-pressed", String(fuer.has(n))); });
+    b.addEventListener("click", () => { fuer.has(n) ? fuer.delete(n) : fuer.add(n); dlgGeaendert = true; b.setAttribute("aria-pressed", String(fuer.has(n))); });
     return b;
   }));
   const ok = h("button", { class: "btn", type: "button" }, "Speichern");
@@ -1176,9 +1372,25 @@ function kostenDialog(id, v) {
     if (!b) { fehler.textContent = "Der Betrag fehlt oder ist keine Zahl, z. B. 84,30."; betrag.focus(); return; }
     if (!zahler) { fehler.textContent = "Tipp an, wer bezahlt hat."; return; }
     if (!fuer.size) { fehler.textContent = "Tipp mindestens eine Person an, für die das war."; return; }
-    const f = {}; fuer.forEach((n) => { f[n] = true; });
     dlg.close();
-    store.schreibe("kosten/" + (id || neueId()), { t, b, wer: zahler, fuer: f, ts: v.ts || Date.now() });
+    if (!id) {
+      const f = {}; fuer.forEach((n) => { f[n] = true; });
+      const neu = { t, b, wer: zahler, fuer: f, ts: Date.now() };
+      if (ich) neu.von = ich;
+      store.schreibe("kosten/" + neueId(), neu);
+      return;
+    }
+    // Bestehende Ausgabe: nur die geänderten Felder senden
+    const neu = {};
+    if (t !== v.t) neu.t = t;
+    if (b !== v.b) neu.b = b;
+    if (zahler !== v.wer) neu.wer = zahler;
+    new Set(LEUTE.concat(Object.keys(v.fuer || {}))).forEach((n) => {
+      if (fuer.has(n) !== !!(v.fuer || {})[n]) neu["fuer/" + n] = fuer.has(n) ? true : null;
+    });
+    if (!Object.keys(neu).length) return;
+    if (ich) neu.ed = ich;
+    store.aendere("kosten/" + id, neu);
   };
   aktion(ok, wofuer, sichern);
   betrag.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); sichern(); } });
@@ -1215,14 +1427,14 @@ function zeichneWuensche() {
 }
 
 /* ---------- Sicherung ---------- */
-$("#sichern").addEventListener("click", () => {
+function ladeSicherung(zusatz) {
   const inhalt = { seite: "weihnachten-lindgruen", stand: new Date().toISOString(), daten: store.get() };
-  const a = h("a", { download: "lindgruen-sicherung-" + inhalt.stand.slice(0, 10) + ".json",
+  const a = h("a", { download: "lindgruen-sicherung-" + inhalt.stand.slice(0, 16).replace(/[T:]/g, "-") + (zusatz || "") + ".json",
     href: URL.createObjectURL(new Blob([JSON.stringify(inhalt, null, 2)], { type: "application/json" })) });
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  toast("Sicherung heruntergeladen.");
-});
+}
+$("#sichern").addEventListener("click", () => { ladeSicherung(); toast("Sicherung heruntergeladen."); });
 $("#einspielen").addEventListener("click", () => $("#sicherungDatei").click());
 $("#sicherungDatei").addEventListener("change", async (e) => {
   const datei = e.target.files[0]; e.target.value = "";
@@ -1235,10 +1447,15 @@ $("#sicherungDatei").addEventListener("change", async (e) => {
   const vom = new Date(inhalt.stand).toLocaleString("de-DE", { dateStyle: "long", timeStyle: "short" });
   oeffne(
     h("h3", { id: "dlgTitel" }, "Sicherung einspielen?"),
-    h("p", { class: "hinweis" }, "Stand vom " + vom + ". Alles, was jetzt auf der Seite steht, wird für alle durch diesen Stand ersetzt."),
+    h("p", { class: "hinweis" }, "Stand vom " + vom + ". Alles, was jetzt auf der Seite steht, wird für alle durch diesen Stand ersetzt. Der jetzige Stand wird vorher als Datei auf dieses Gerät geladen, falls du zurück willst."),
     h("div", { class: "dlg-fuss" },
       h("button", { class: "btn leise", type: "button", onclick: () => dlg.close() }, "Abbrechen"),
-      h("button", { class: "btn", type: "button", onclick: () => { dlg.close(); store.schreibe("", inhalt.daten); toast("Sicherung eingespielt."); } }, "Ersetzen")));
+      h("button", { class: "btn", type: "button", onclick: () => {
+        dlg.close();
+        if (store.geladen()) ladeSicherung("-vor-dem-einspielen");
+        store.schreibe("", Object.assign({}, inhalt.daten, { meta: { v: VERSION } }));
+        toast("Sicherung eingespielt. Der vorige Stand liegt als Datei bei deinen Downloads.", null, 8000);
+      } }, "Ersetzen")));
 });
 
 /* ---------- Countdown ---------- */
@@ -1421,9 +1638,10 @@ store.on((state, status, offen) => {
   zeichneAlles();
   const s = $("#status");
   const zu = status === "ohne" || status === "falsch";
-  s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : "aus";
+  s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : status === "lade" ? "lade" : "aus";
   s.textContent = status === "live" ? (offen ? "Speichert …" : "Verbunden, alles gespeichert")
     : status === "demo" ? "Demo-Modus, nur auf diesem Gerät"
+    : status === "lade" ? "Verbinde …"
     : zu ? "Link unvollständig"
     : offen ? "Keine Verbindung, Änderungen warten" : "Keine Verbindung, neuer Versuch läuft";
   $("#demoHinweis").hidden = status !== "demo";
@@ -1432,6 +1650,12 @@ store.on((state, status, offen) => {
   $("#sperre").textContent = status === "falsch"
     ? "Dieser Link passt nicht mehr. Frag Jonathan nach dem aktuellen Link für die Seite."
     : zu ? "Hier fehlt der geheime Teil des Links. Öffne die Seite bitte über den Link, den Jonathan in die Gruppe geschickt hat. Danach merkt sich dein Gerät den Zugang." : "";
+  // Solange noch nie ein Stand da war, sieht eine leere Liste aus wie verlorene Einträge: lieber deutlich sagen, dass geladen wird.
+  const leerGeladen = store.live && !zu && !store.geladen();
+  document.body.classList.toggle("laedt", leerGeladen);
+  $("#ladeHinweis").hidden = !leerGeladen;
+  $("#ladeHinweis").textContent = !leerGeladen ? "" : status === "lade" ? "Die Einträge werden geladen …"
+    : "Gerade keine Verbindung zur Datenbank. Die Einträge erscheinen, sobald das Netz wieder da ist.";
   // Leiste oben: neue Version der Seite, oder Änderungen, die länger als ein paar Sekunden warten
   const leiste = $("#leiste");
   if (store.veraltet()) {
@@ -1465,7 +1689,7 @@ $("#demoFuellen").addEventListener("click", () => {
   store.schreibe("zimmer", { z1: { a: "Tabea", b: "Tom" }, z2: { a: "Josephine", b: "Cornelis" } });
   store.schreibe("ideen", { i1: { t: "Sauna-Abend im Haus", von: "Tom", ts: t, ja: { Tom: true, Tabea: true, Gunda: true } },
                             i2: { t: "Winterwanderung ab Haustür", von: "Anja", ts: t + 1, ja: { Anja: true } } });
-  store.schreibe("eck", { anreise: "Beispiel: ab 16 Uhr", essen: "Tabea: vegetarisch\nTom: mag keinen Rosenkohl" });
+  store.schreibe("eck", { anreise: "Beispiel: ab 16 Uhr", isst: { Tabea: "vegetarisch", Tom: "mag keinen Rosenkohl" } });
   const alle = {}; LEUTE.forEach((n) => { alle[n] = true; });
   store.schreibe("kosten", { k1: { t: "Einkauf am 23.12.", b: 18430, wer: "Anja", fuer: alle, ts: t },
                              k2: { t: "Glühwein und Punsch", b: 3250, wer: "Tom", fuer: alle, ts: t + 1 },
