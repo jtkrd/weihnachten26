@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Weihnachten im LindGrün</title>
+<title>Weihnachten 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
@@ -302,13 +302,64 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
   .haus dl > div{break-inside:avoid;padding-bottom:16px}
   .haus dt{margin-top:0}
 }
+/* Türchen vor der Seite */
+body.tor-zu > header, body.tor-zu > section, body.tor-zu > main, body.tor-zu > footer{display:none}
+.tor{position:fixed;inset:0;z-index:25;background:var(--tanne);color:var(--schnee);overflow:auto;display:grid;place-items:center;padding:24px 20px;transition:opacity .5s}
+.tor[hidden]{display:none}
+.tor.weg{opacity:0;pointer-events:none}
+.tor-in{width:min(380px,100%);text-align:center}
+.tor-titel{font-family:var(--serif);font-size:clamp(34px,9vw,48px);line-height:1.05;color:var(--lind)}
+.tuer{width:176px;height:228px;margin:28px auto 22px;position:relative;perspective:900px}
+.tuer-innen{position:absolute;inset:0;border-radius:6px;background:#12261D;box-shadow:inset 0 0 26px #000;display:grid;place-items:center}
+.tuer-innen svg{width:130px;height:130px}
+.tuer-blatt{position:absolute;inset:0;border-radius:6px;background:var(--hagebutte);outline:2px dashed var(--kerze);outline-offset:-9px;display:grid;place-items:center;transform-origin:left center;transition:transform 1.1s cubic-bezier(.6,0,.2,1);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.tuer-blatt span{font-family:var(--serif);font-size:104px;line-height:1;color:var(--kerze)}
+.tuer-blatt i{position:absolute;right:20px;top:50%;width:13px;height:13px;border-radius:50%;background:var(--kerze)}
+.tuer.offen .tuer-blatt{transform:rotateY(-108deg)}
+.tuer-blatt span,.tuer-blatt i{transition:opacity .25s .3s}
+.tuer.offen .tuer-blatt span,.tuer.offen .tuer-blatt i{opacity:0}
+.tuer.wackel{animation:wackel .45s}
+@keyframes wackel{20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+.tor-text{font-size:18px;color:var(--lind-hell);max-width:24em;margin:0 auto}
+.tor-form{display:flex;gap:10px;margin-top:16px}
+.tor-form[hidden],.tor-setup[hidden]{display:none}
+.auto a[hidden]{display:none}
+.tor-form .feld{flex:1;min-width:0;color:var(--tanne)}
+.tor-setup{margin-top:16px;text-align:left}
+.tor-setup .feld{color:var(--tanne);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.tor-setup .btn.leise{color:var(--schnee);border-color:var(--lind-tief)}
+.tor .fehler{color:#FFB4A8}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  .tuer-blatt{transition:none}
+  .tuer.wackel{animation:none}
   .schnee{display:none}
 }
 </style>
 </head>
-<body>
+<body class="tor-zu">
+
+<div class="tor" id="tor">
+  <div class="tor-in">
+    <p class="tor-titel">Weihnachten 2026</p>
+    <div class="tuer" id="tuer" aria-hidden="true">
+      <div class="tuer-innen"><svg viewBox="0 0 120 120"><path d="M60 22L80 50H70L88 74H77L96 100H24L43 74H32L50 50H40Z" fill="#C6D89C"/><rect x="54" y="100" width="12" height="10" fill="#6F8B45"/><path transform="translate(60 19) scale(1.6) translate(0 33.5)" d="M0 -40l2.4 5 5.4.6-4 3.8 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.8 5.4-.6z" fill="#E2A93B"/><circle cx="56" cy="44" r="3.5" fill="#B5302F"/><circle cx="68" cy="64" r="3.500" fill="#FBFAF3"/><circle cx="48" cy="68" r="3.5" fill="#B5302F"/><circle cx="72" cy="88" r="3.5" fill="#E2A93B"/><circle cx="44" cy="90" r="3.5" fill="#FBFAF3"/></svg></div>
+      <div class="tuer-blatt"><span>24</span><i></i></div>
+    </div>
+    <p class="tor-text" id="torText" role="status">Einen Moment …</p>
+    <div class="tor-form" id="torForm" hidden>
+      <label class="sr" for="torFeld">Codewort</label>
+      <input class="feld" id="torFeld" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Codewort">
+      <button class="btn" type="button" id="torBtn">Türchen öffnen</button>
+    </div>
+    <div class="tor-setup" id="torSetup" hidden>
+      <label class="sr" for="torDaten">Stammdaten</label>
+      <textarea class="feld" id="torDaten" rows="8" spellcheck="false" placeholder="Stammdaten hier einfügen"></textarea>
+      <div class="dlg-fuss"><button class="btn leise" type="button" id="torAbbruch" hidden>Abbrechen</button><button class="btn" type="button" id="torSpeichern">Speichern</button></div>
+    </div>
+    <p class="fehler" id="torFehler" role="alert"></p>
+  </div>
+</div>
 
 <div class="schnee" id="schnee" aria-hidden="true"></div>
 
@@ -331,8 +382,8 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
   <div class="lichter" aria-hidden="true"></div>
   <div class="wrap hero-grid">
     <div>
-      <h1>Weihnachten im LindGrün</h1>
-      <p class="hero-sub">22. bis 27. Dezember 2026 in Lind in der Eifel. Sieben Leute, zwei Autos, ein Haus mit Sauna.</p>
+      <h1 id="seitenTitel">Weihnachten 2026</h1>
+      <p class="hero-sub" id="untertitel"></p>
       <p class="schlafen" id="schlafen"></p>
       <div class="wer">
         <p id="werFrage">Wer bist du? Tipp deinen Namen an, dann weiß die Seite, wer was einträgt.</p>
@@ -346,27 +397,27 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
         <span class="uhr" id="uhr" aria-live="off"></span>
       </div>
       <div class="karte-bild">
-        <svg id="karte" viewBox="0 0 560 600" role="img" aria-label="Karte mit den beiden Anfahrtsstrecken von Essen und von Dietzenbach nach Lind in der Eifel"></svg>
+        <svg id="karte" viewBox="0 0 560 600" role="img" aria-label="Karte mit den beiden Anfahrtsstrecken"></svg>
         <button class="nochmal" id="nochmal" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v5h5"/></svg>Noch mal fahren</button>
       </div>
       <div class="autos">
         <div class="auto" style="--c:var(--hagebutte)">
-          <h3>Aus Essen</h3>
-          <p class="wer-faehrt">Anja, Josephine, Cornelis, Jonathan</p>
-          <p class="strecke">ca. 165 km über Köln und die A61, knapp 2 Stunden</p>
+          <h3 id="ortEssen"></h3>
+          <p class="wer-faehrt" id="werEssen"></p>
+          <p class="strecke" id="streckeEssen"></p>
           <label for="abEssen">Abfahrt</label>
           <input type="time" id="abEssen" data-auto="essen">
           <p class="ankunft" id="anEssen"></p>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Essen&destination=Nitzer+Stra%C3%9Fe+4%2C+56729+Lind&travelmode=driving" target="_blank" rel="noopener">Route in Google Maps</a>
+          <a id="routeEssen" target="_blank" rel="noopener">Route in Google Maps</a>
         </div>
         <div class="auto" style="--c:var(--kerze)">
-          <h3>Aus Dietzenbach</h3>
-          <p class="wer-faehrt">Gunda, Tabea, Tom</p>
-          <p class="strecke">ca. 165 km über Limburg und Koblenz, knapp 2 Stunden</p>
+          <h3 id="ortDietz"></h3>
+          <p class="wer-faehrt" id="werDietz"></p>
+          <p class="strecke" id="streckeDietz"></p>
           <label for="abDietz">Abfahrt</label>
           <input type="time" id="abDietz" data-auto="dietz">
           <p class="ankunft" id="anDietz"></p>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Dietzenbach&destination=Nitzer+Stra%C3%9Fe+4%2C+56729+Lind&travelmode=driving" target="_blank" rel="noopener">Route in Google Maps</a>
+          <a id="routeDietz" target="_blank" rel="noopener">Route in Google Maps</a>
         </div>
       </div>
       <div class="karte-fuss">
@@ -386,8 +437,7 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
     <div class="kopf"><div><h2>Mitbringliste</h2>
     <p class="lead">Schreib auf, was wir brauchen, und trag dich ein, wenn du etwas mitbringst. Was wir erst vor Ort besorgen, landet auf der Einkaufsliste.</p></div>
       <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><rect x="18" y="54" width="56" height="48" rx="4" fill="#B5302F"/><rect x="14" y="44" width="64" height="15" rx="4" fill="#8F2222"/><rect x="41" y="44" width="10" height="58" fill="#E2A93B"/><path d="M46 44C34 22 18 30 25 39c4 5 14 5 21 5zM46 44c12-22 28-14 21-5-4 5-14 5-21 5z" fill="#E2A93B"/><rect x="71" y="74" width="34" height="28" rx="3" fill="#1F3B2D"/><rect x="68" y="66" width="40" height="11" rx="3" fill="#2C5240"/><rect x="85" y="66" width="6" height="36" fill="#FBFAF3"/><path d="M88 66c-7-12-16-6-12-1 3 3 8 2 12 1zM88 66c7-12 16-6 12-1-3 3-8 2-12 1z" fill="#FBFAF3"/></svg></div>
-    <div class="demo-hinweis" id="demoHinweis" hidden>Die Seite läuft gerade im Demo-Modus: Einträge bleiben nur auf diesem Gerät. Sobald die Datenbank-Adresse eingetragen ist, sehen alle dasselbe.
-      <span class="demo-knoepfe"><button class="btn leise klein" type="button" id="demoFuellen">Beispiele laden</button> <button class="btn leise klein" type="button" id="demoLeeren">Alles leeren</button></span></div>
+    <div class="demo-hinweis" id="demoHinweis" hidden>Die Seite läuft gerade im Demo-Modus: Einträge bleiben nur auf diesem Gerät. Sobald die Datenbank-Adresse eingetragen ist, sehen alle dasselbe.</div>
     <div class="blatt">
       <div class="neu" id="bringForm">
         <div><label class="sr" for="bringText">Was brauchen wir?</label>
@@ -470,7 +520,7 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
 <section class="abschnitt" id="haus">
   <div class="wrap">
     <div class="kopf"><div><h2>Das Haus</h2>
-    <p class="lead">Ferienhaus LindGrün, Nitzer Straße 4, 56729 Lind. Nichtraucherhaus, Parkplätze direkt davor.</p></div>
+    <p class="lead" id="hausZeile"></p></div>
       <svg class="bild" viewBox="0 0 120 120" aria-hidden="true"><ellipse cx="60" cy="104" rx="52" ry="8" fill="#FBFAF3"/><path d="M76 20c-6-6 6-9 0-16" fill="none" stroke="#FBFAF3" stroke-width="4.5" stroke-linecap="round"/><rect x="72" y="26" width="9" height="20" fill="#8F2222"/><rect x="24" y="56" width="62" height="46" fill="#FBFAF3"/><path d="M14 60L55 26l41 34z" fill="#1F3B2D"/><path d="M33 44L55 26l22 18c-6 4-10-2-15 0s-9 4-14 0-9 3-15 0z" fill="#FBFAF3"/><rect x="48" y="76" width="14" height="26" rx="2" fill="#B5302F"/><circle cx="58.5" cy="90" r="1.6" fill="#E2A93B"/><rect x="30" y="68" width="12" height="13" rx="2" fill="#E2A93B"/><rect x="68" y="68" width="12" height="13" rx="2" fill="#E2A93B"/><path d="M36 68v13M30 74.5h12M74 68v13M68 74.5h12" stroke="#1F3B2D" stroke-width="1.5"/><rect x="101" y="92" width="5" height="10" fill="#1F3B2D"/><path d="M103.500 58l9 14h-5l8 12h-5l8 10h-30l8-10h-5l8-12h-5z" fill="#2C5240"/></svg></div>
     <div class="haus">
       <dl>
@@ -483,14 +533,7 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
         <div><dt>Wäsche</dt><dd>Waschmaschine und Trockner sind da</dd></div>
         <div><dt>Draußen</dt><dd>Garten mit Sitzplätzen, Kohle- und Gasgrill, kostenlose Leihfahrräder</dd></div>
       </dl>
-      <aside class="kontakt">
-        <h3>Gastgeber</h3>
-        <p>Anja und Torsten Schiller</p>
-        <p><a href="tel:+491718526739">0171 8526739</a><br>
-           <a href="mailto:info@ferienhaus-lindgruen.de">info@ferienhaus-lindgruen.de</a></p>
-        <p><a href="https://www.ferienhaus-lindgruen.de/" target="_blank" rel="noopener">ferienhaus-lindgruen.de</a></p>
-        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Ferienhaus+Lindgr%C3%BCn%2C+Nitzer+Stra%C3%9Fe+4%2C+56729+Lind" target="_blank" rel="noopener">Haus in Google Maps öffnen</a>
-      </aside>
+      <aside class="kontakt" id="kontakt"></aside>
     </div>
   </div>
 </section>
@@ -518,8 +561,8 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
   <div class="wrap">
     <div class="blatt wunsch">
       <h3>Fehlt dir etwas auf der Seite?</h3>
-      <p>Schreib Jonathan, was du dir wünschst oder was nicht klappt. Er sieht es hier und baut es ein, wenn es geht.</p>
-      <button class="btn" type="button" id="wunschBtn">Wunsch an Jonathan schreiben</button>
+      <p id="wunschText"></p>
+      <button class="btn" type="button" id="wunschBtn">Wunsch schreiben</button>
       <ul class="liste" id="wunschListe"></ul>
     </div>
   </div>
@@ -528,11 +571,12 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
 
 <footer class="ende">
   <div class="wrap">
-    <span>Gebaut für Anja, Josephine, Cornelis, Gunda, Tabea, Tom und Jonathan.</span>
+    <span id="gebautFuer"></span>
     <span class="werkzeug">
       <button class="btn leise klein" id="schneeBtn" type="button">Schnee ausschalten</button>
       <button class="btn leise klein" id="sichern" type="button">Sicherung herunterladen</button>
       <button class="btn leise klein" id="einspielen" type="button">Sicherung einspielen</button>
+      <button class="btn leise klein" id="stammBtn" type="button" hidden>Stammdaten ändern</button>
       <input type="file" id="sicherungDatei" accept="application/json,.json" hidden>
     </span>
     <span class="status" id="status" data-s="demo">Demo-Modus</span>
@@ -567,7 +611,10 @@ let SCHLUESSEL = null;
   } catch (e) {}
 })();
 
-const LEUTE = ["Anja", "Josephine", "Cornelis", "Gunda", "Tabea", "Tom", "Jonathan"];
+/* Namen, Orte, Adresse und Kontakt stehen NICHT in dieser Datei. Sie liegen als "stamm" in der Datenbank
+   und werden erst geladen, wenn der Schlüssel aus dem Link stimmt. */
+let LEUTE = [];
+let ORGA = "";
 const KATEGORIEN = [
   { id: "essen",   name: "Essen und Zutaten",       farbe: "#B5302F" },
   { id: "trinken", name: "Getränke",                farbe: "#E2A93B" },
@@ -851,7 +898,7 @@ const store = (() => {
     return Promise.resolve(true);
   }
   /* schreibe: ersetzt den Wert an einem Pfad (null löscht).
-     aendere: ändert nur die genannten Felder; ein Feldname darf auch ein Unterpfad sein ("wer/Anja"). */
+     aendere: ändert nur die genannten Felder; ein Feldname darf auch ein Unterpfad sein ("wer/Name"). */
   function schreibe(pfad, wert) { return lege({ pfad, wert: kopie(wert), art: "put", ts: Date.now() }); }
   function aendere(pfad, felder) { return lege({ pfad, wert: kopie(felder), art: "patch", ts: Date.now() }); }
 
@@ -890,7 +937,6 @@ const store = (() => {
 /* ---------- Wer bin ich ---------- */
 let ich = null;
 try { ich = localStorage.getItem("lindgruen-ich"); } catch (e) {}
-if (!LEUTE.includes(ich)) ich = null;
 
 function setIch(name) {
   ich = name;
@@ -1409,16 +1455,16 @@ $("#kostenBtn").addEventListener("click", () => mitName(() => kostenDialog(null,
 
 /* ---------- Wünsche für die Seite ---------- */
 $("#wunschBtn").addEventListener("click", () => mitName(() => textDialog({
-  titel: "Wunsch an Jonathan", hinweis: "Was fehlt, was nervt, was wäre schön? Alle können die Wünsche unten lesen.",
+  titel: "Wunsch an " + ORGA, hinweis: "Was fehlt, was nervt, was wäre schön? Alle können die Wünsche unten lesen.",
   label: "Dein Wunsch", mehrzeilig: true, knopf: "Abschicken", platzhalter: "z. B. Ich hätte gern eine Liste für Spiele, die wir spielen wollen.",
-  speichern: (t) => { if (t) { store.schreibe("wuensche/" + neueId(), { t, von: ich, ts: Date.now() }); toast("Wunsch abgeschickt. Jonathan sieht ihn hier auf der Seite."); } } })));
+  speichern: (t) => { if (t) { store.schreibe("wuensche/" + neueId(), { t, von: ich, ts: Date.now() }); toast("Wunsch abgeschickt. " + ORGA + " sieht ihn hier auf der Seite."); } } })));
 function zeichneWuensche() {
   const w = eintraege(store.get().wuensche).sort((a, b) => (!!a[1].ok - !!b[1].ok) || (b[1].ts || 0) - (a[1].ts || 0));
   $("#wunschListe").replaceChildren(...w.map(([id, v]) =>
     h("li", { class: v.ok ? "erledigt" : "" },
       h("div", { class: "ding" }, h("span", {}, v.t),
         h("small", {}, (v.von || "Jemand") + (v.ts ? ", " + new Date(v.ts).toLocaleDateString("de-DE", { day: "numeric", month: "long" }) : ""))),
-      ich === "Jonathan"
+      ich && ich === ORGA
         ? h("label", { class: "pack" }, h("input", { type: "checkbox", checked: !!v.ok,
             onchange: (e) => store.schreibe("wuensche/" + id + "/ok", e.target.checked ? true : null) }), "erledigt")
         : (v.ok ? h("span", { class: "marke" }, "erledigt") : null),
@@ -1490,18 +1536,20 @@ function kurve(pts) {
   }
   return d;
 }
-const LIND = P(50.3224, 7.0347);
-const ROUTEN = {
-  essen: { farbe: "#B5302F", name: "Essen", pts: [P(51.455, 7.012), P(51.30, 6.95), P(51.17, 6.94), P(50.93, 7.06),
-           P(50.75, 7.04), P(50.63, 7.03), P(50.54, 7.11), P(50.46, 7.22), P(50.37, 7.28), P(50.33, 7.20), [LIND[0] + 20, LIND[1] - 11]] },
-  dietz: { farbe: "#E2A93B", name: "Dietzenbach", pts: [P(50.009, 8.776), P(50.05, 8.60), P(50.16, 8.31), P(50.39, 8.06),
-           P(50.44, 7.83), P(50.42, 7.57), P(50.36, 7.38), P(50.33, 7.22), [LIND[0] + 20, LIND[1] + 12]] }
-};
+let LIND = [0, 0], ZIELNAME = "";
+let ROUTEN = {};
 const karte = $("#karte");
 const reduziert = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function baueKarte() {
-  // Höhenringe der Eifel, ganz leise
+function baueKarte(k) {
+  karte.replaceChildren(); ROUTEN = {};
+  if (!k || !Array.isArray(k.ziel)) return;
+  LIND = P(k.ziel[0], k.ziel[1]); ZIELNAME = k.zielName || "";
+  [["essen", "#B5302F", -11], ["dietz", "#E2A93B", 12]].forEach(([id, farbe, dy]) => {
+    if (Array.isArray(k[id]) && k[id].length > 1)
+      ROUTEN[id] = { farbe, name: (stamm().autos[id] || {}).ort || "", pts: k[id].map((p) => P(p[0], p[1])).concat([[LIND[0] + 20, LIND[1] + dy]]) };
+  });
+  // Höhenringe rund ums Ziel, ganz leise
   [34, 62, 92].forEach((r) => karte.append(svg("circle", { cx: LIND[0] - 6, cy: LIND[1] - 8, r, fill: "none", stroke: "#2C5240", "stroke-width": 1.5 })));
   // Rhein und Mosel
   const rhein = [P(49.99, 8.30), P(50.01, 8.10), P(49.98, 7.90), P(50.06, 7.76), P(50.15, 7.71), P(50.36, 7.60), P(50.44, 7.42),
@@ -1533,8 +1581,9 @@ function baueKarte() {
     karte.append(svg("text", { ...txt, x: X(lo) + dx, y: Y(la) + dy, "font-size": 13, fill: "#DCE8BE", opacity: .8, "text-anchor": anker }, t));
   });
   // Startpunkte
-  [["essen", "Essen", 14, 5, "start"], ["dietz", "Dietzenbach", -14, 5, "end"]].forEach(([id, t, dx, dy, anker]) => {
-    const [x, y] = ROUTEN[id].pts[0];
+  [["essen", 14, 5, "start"], ["dietz", -14, 5, "end"]].forEach(([id, dx, dy, anker]) => {
+    if (!ROUTEN[id]) return;
+    const t = ROUTEN[id].name, [x, y] = ROUTEN[id].pts[0];
     karte.append(svg("circle", { cx: x, cy: y, r: 7, fill: ROUTEN[id].farbe, stroke: "#FBFAF3", "stroke-width": 2 }));
     karte.append(svg("text", { ...txt, x: x + dx, y: y + dy, "font-size": 16, "font-weight": 700, fill: "#FBFAF3", "text-anchor": anker }, t));
   });
@@ -1545,7 +1594,7 @@ function baueKarte() {
   z.append(svg("path", { d: "M0 -30 L9 -17 H4 L12 -6 H5 L14 6 H-14 L-5 -6 H-12 L-4 -17 H-9 Z", fill: "#C6D89C" }));
   z.append(svg("rect", { x: -2.5, y: 6, width: 5, height: 6, fill: "#6F8B45" }));
   z.append(svg("path", { d: "M0 -40 l2.4 5 5.4.6 -4 3.8 1 5.4 -4.8 -2.6 -4.8 2.6 1 -5.4 -4 -3.8 5.4 -.6z", fill: "#E2A93B" }));
-  z.append(svg("text", { ...txt, x: -20, y: 2, "font-size": 19, "font-weight": 700, fill: "#C6D89C", "text-anchor": "end" }, "Lind"));
+  z.append(svg("text", { ...txt, x: -20, y: 2, "font-size": 19, "font-weight": 700, fill: "#C6D89C", "text-anchor": "end" }, ZIELNAME));
   karte.append(z);
   // Autos
   for (const r of Object.values(ROUTEN)) {
@@ -1574,6 +1623,7 @@ function stelle(t, ab) {           // t = Uhrzeit in Minuten
 }
 let lauf = 0;
 function fahre() {
+  if (!ROUTEN.essen || !ROUTEN.dietz || !$("#zielRing")) return;
   const roh = abfahrten();
   const beide = roh.essen != null && roh.dietz != null;
   const ab = { essen: roh.essen ?? roh.dietz ?? 600, dietz: roh.dietz ?? roh.essen ?? 600 };
@@ -1583,7 +1633,7 @@ function fahre() {
     stelle(t1, ab);
     $("#zielRing").setAttribute("opacity", 1);
     $("#uhr").textContent = !beide ? "" : an.essen === an.dietz ? "Gleichzeitig da, um " + zuUhr(an.essen) + " Uhr"
-      : "Zuerst da: " + (an.essen < an.dietz ? "Essen" : "Dietzenbach") + ", um " + zuUhr(Math.min(an.essen, an.dietz)) + " Uhr";
+      : "Zuerst da: " + (an.essen < an.dietz ? ROUTEN.essen.name : ROUTEN.dietz.name) + ", um " + zuUhr(Math.min(an.essen, an.dietz)) + " Uhr";
   };
   const meins = ++lauf;
   if (reduziert) return fertig();
@@ -1629,14 +1679,131 @@ $("#nochmal").addEventListener("click", fahre);
   zeige();
 })();
 
+/* ---------- Stammdaten: Namen, Orte, Haus ---------- */
+const DEMO_STAMM = { titel: "Weihnachten 2026", untertitel: "Demo ohne Datenbank.", leute: "Alex, Bea, Chris, Dana, Eli, Finn, Gabi", orga: "Alex",
+  autos: { essen: { ort: "Stadt A", wer: "Alex, Bea, Chris, Dana", strecke: "" }, dietz: { ort: "Stadt B", wer: "Eli, Finn, Gabi", strecke: "" } }, haus: {} };
+function stamm() {
+  const s = store.modus === "demo" ? DEMO_STAMM : store.get().stamm;
+  if (!s || typeof s.leute !== "string" || !s.leute.trim()) return null;
+  return Object.assign({ autos: {}, haus: {} }, s);
+}
+let stammGezeigt = null;
+function zeichneStamm() {
+  const s = stamm(), marke = JSON.stringify(s);
+  if (marke === stammGezeigt) return;
+  stammGezeigt = marke;
+  if (!s) return;
+  LEUTE = s.leute.split(",").map((n) => n.trim()).filter(Boolean);
+  ORGA = s.orga || LEUTE[LEUTE.length - 1];
+  if (ich && !LEUTE.includes(ich)) ich = null;
+  document.title = s.titel || "Weihnachten 2026";
+  $("#seitenTitel").textContent = s.titel || "Weihnachten 2026";
+  $("#untertitel").textContent = s.untertitel || "";
+  const haus = s.haus || {}, enc = encodeURIComponent;
+  [["essen", "Essen"], ["dietz", "Dietz"]].forEach(([id, El]) => {
+    const a = s.autos[id] || {};
+    $("#ort" + El).textContent = a.ort ? "Aus " + a.ort : "";
+    $("#wer" + El).textContent = a.wer || "";
+    $("#strecke" + El).textContent = a.strecke || "";
+    const link = $("#route" + El);
+    link.hidden = !(a.ort && haus.adresse);
+    if (!link.hidden) link.href = "https://www.google.com/maps/dir/?api=1&origin=" + enc(a.ort) + "&destination=" + enc(haus.adresse) + "&travelmode=driving";
+  });
+  $("#hausZeile").textContent = haus.zeile || "";
+  const tel = String(haus.tel || "").replace(/[^0-9+]/g, "").replace(/^0/, "+49");
+  $("#kontakt").hidden = !(haus.gastgeber || haus.tel || haus.mail || haus.web);
+  $("#kontakt").replaceChildren(
+    h("h3", {}, "Gastgeber"),
+    haus.gastgeber && h("p", {}, haus.gastgeber),
+    (haus.tel || haus.mail) && h("p", {},
+      haus.tel && h("a", { href: "tel:" + tel }, haus.tel), haus.tel && haus.mail && h("br", {}),
+      haus.mail && h("a", { href: "mailto:" + haus.mail }, haus.mail)),
+    /^https:\/\//.test(haus.web || "") && h("p", {}, h("a", { href: haus.web, target: "_blank", rel: "noopener" }, haus.web.replace(/^https:\/\/(www\.)?/, "").replace(/\/$/, ""))),
+    (haus.suche || haus.adresse) && h("a", { class: "btn", target: "_blank", rel: "noopener",
+      href: "https://www.google.com/maps/search/?api=1&query=" + enc(haus.suche || haus.adresse) }, "Haus in Google Maps öffnen"));
+  $("#wunschText").textContent = "Schreib " + ORGA + ", was du dir wünschst oder was nicht klappt. " + ORGA + " sieht es hier und baut es ein, wenn es geht.";
+  $("#wunschBtn").textContent = "Wunsch an " + ORGA + " schreiben";
+  $("#gebautFuer").textContent = "Gebaut für " + LEUTE.slice(0, -1).join(", ") + (LEUTE.length > 1 ? " und " : "") + LEUTE[LEUTE.length - 1] + ".";
+  let k = null;
+  try { k = typeof s.karte === "string" ? JSON.parse(s.karte) : null; } catch (e) {}
+  baueKarte(k);
+  zeichneWer();
+  setTimeout(fahre, 600);
+}
+
+/* ---------- Türchen: Codewort, fehlender Link, Einrichten ---------- */
+const glatt = (t) => String(t || "").trim().toLowerCase().replace(/\s+/g, "");
+let tuerOffen = "", torSpielt = false, torBearbeiten = false;
+try { tuerOffen = localStorage.getItem("lindgruen-tuer") || ""; } catch (e) {}
+function zeichneTor(status) {
+  if (torSpielt) return;
+  const tor = $("#tor"), s = stamm(), cw = s ? glatt(s.codewort) : "";
+  const zu = status === "ohne" || status === "falsch";
+  const art = torBearbeiten ? "einrichten"
+    : zu ? "kein"
+    : !s ? (status === "live" ? "einrichten" : "lade")
+    : cw && cw !== tuerOffen ? "tuer" : "offen";
+  document.body.classList.toggle("tor-zu", art !== "offen");
+  tor.hidden = art === "offen";
+  if (art === "offen") return;
+  $("#torForm").hidden = art !== "tuer";
+  $("#torSetup").hidden = art !== "einrichten";
+  $("#tuer").hidden = art === "einrichten";
+  $("#torAbbruch").hidden = !torBearbeiten;
+  $("#torText").textContent =
+    art === "kein" ? (status === "falsch" ? "Dieser Link passt nicht mehr. Frag in der Gruppe nach dem aktuellen."
+                                         : "Dieses Türchen geht nur mit dem Link aus der Gruppe auf.")
+    : art === "tuer" ? "Hinter diesem Türchen wird geplant. Wie lautet das Codewort?"
+    : art === "einrichten" ? (torBearbeiten ? "Stammdaten ändern. Speichern gilt sofort für alle." : "Die Seite ist noch nicht eingerichtet. Füg hier die Stammdaten ein.")
+    : status === "aus" ? "Gerade keine Verbindung. Sobald das Netz da ist, geht es weiter." : "Einen Moment …";
+}
+function oeffneTuer() {
+  const s = stamm(); if (!s) return;
+  if (glatt($("#torFeld").value) !== glatt(s.codewort)) {
+    $("#torFehler").textContent = "Das war es nicht. Frag in der Gruppe nach dem Codewort.";
+    const t = $("#tuer"); t.classList.remove("wackel"); void t.offsetWidth; t.classList.add("wackel");
+    $("#torFeld").select(); return;
+  }
+  tuerOffen = glatt(s.codewort);
+  try { localStorage.setItem("lindgruen-tuer", tuerOffen); } catch (e) {}
+  $("#torFehler").textContent = ""; $("#torForm").hidden = true; $("#torText").textContent = "Frohe Weihnachten!";
+  torSpielt = true; $("#tuer").classList.add("offen");
+  setTimeout(() => {
+    document.body.classList.remove("tor-zu"); $("#tor").classList.add("weg");
+    setTimeout(() => { torSpielt = false; $("#tor").hidden = true; $("#tor").classList.remove("weg"); $("#tuer").classList.remove("offen"); fahre(); }, 550);
+  }, reduziert ? 300 : 1500);
+}
+aktion($("#torBtn"), $("#torFeld"), oeffneTuer);
+$("#torSpeichern").addEventListener("click", () => {
+  let d = null;
+  try { d = JSON.parse($("#torDaten").value); } catch (e) {}
+  if (!d || typeof d !== "object") { $("#torFehler").textContent = "Das ist kein gültiger Datenblock. Bitte vollständig von { bis } einfügen."; return; }
+  if (Array.isArray(d.leute)) d.leute = d.leute.join(", ");
+  if (typeof d.leute !== "string" || !d.leute.trim()) { $("#torFehler").textContent = "Im Datenblock fehlen die Namen (leute)."; return; }
+  if (d.karte && typeof d.karte === "object") d.karte = JSON.stringify(d.karte);
+  $("#torFehler").textContent = ""; torBearbeiten = false;
+  store.schreibe("stamm", d);
+});
+$("#torAbbruch").addEventListener("click", () => { torBearbeiten = false; $("#torFehler").textContent = ""; zeichneTor($("#status").dataset.roh); });
+$("#stammBtn").addEventListener("click", () => {
+  const s = Object.assign({}, store.get().stamm);
+  try { if (typeof s.karte === "string") s.karte = JSON.parse(s.karte); } catch (e) {}
+  $("#torDaten").value = JSON.stringify(s, null, 1);
+  torBearbeiten = true; zeichneTor($("#status").dataset.roh);
+});
+
 /* ---------- alles zusammen ---------- */
 function zeichneAlles() {
   zeichneBring(); zeichneEssen(); zeichneZimmer(); zeichneIdeen(); zeichneInfos(); zeichneAutos(); zeichneKosten(); zeichneWuensche();
 }
 let leisteTimer = null, leisteWartet = "";
 store.on((state, status, offen) => {
+  zeichneStamm();
   zeichneAlles();
   const s = $("#status");
+  s.dataset.roh = status;
+  zeichneTor(status);
+  $("#stammBtn").hidden = !(store.live && ich && ich === ORGA);
   const zu = status === "ohne" || status === "falsch";
   s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : status === "lade" ? "lade" : "aus";
   s.textContent = status === "live" ? (offen ? "Speichert …" : "Verbunden, alles gespeichert")
@@ -1648,8 +1815,8 @@ store.on((state, status, offen) => {
   document.body.classList.toggle("gesperrt", zu);
   $("#sperre").hidden = !zu;
   $("#sperre").textContent = status === "falsch"
-    ? "Dieser Link passt nicht mehr. Frag Jonathan nach dem aktuellen Link für die Seite."
-    : zu ? "Hier fehlt der geheime Teil des Links. Öffne die Seite bitte über den Link, den Jonathan in die Gruppe geschickt hat. Danach merkt sich dein Gerät den Zugang." : "";
+    ? "Dieser Link passt nicht mehr. Frag in der Gruppe nach dem aktuellen Link."
+    : zu ? "Hier fehlt der geheime Teil des Links. Öffne die Seite bitte über den Link aus der Gruppe. Danach merkt sich dein Gerät den Zugang." : "";
   // Solange noch nie ein Stand da war, sieht eine leere Liste aus wie verlorene Einträge: lieber deutlich sagen, dass geladen wird.
   const leerGeladen = store.live && !zu && !store.geladen();
   document.body.classList.toggle("laedt", leerGeladen);
@@ -1672,47 +1839,9 @@ store.on((state, status, offen) => {
 });
 $("#leisteBtn").addEventListener("click", () => location.reload());
 
-/* ---------- nur im Demo-Modus: Beispiele zum Ausprobieren ---------- */
-$("#demoFuellen").addEventListener("click", () => {
-  if (store.modus !== "demo") return;
-  const t = Date.now();
-  store.schreibe("bring", {
-    b1: { t: "Raclette-Käse", c: "essen", von: "Anja", by: "Anja", ts: t },
-    b2: { t: "Baguette und Kartoffeln", c: "essen", von: "Jonathan", dort: true, ts: t + 1 },
-    b7: { t: "Sprudel und Saft", c: "trinken", von: "Cornelis", dort: true, ts: t + 6 },
-    b3: { t: "Glühwein", c: "trinken", von: "Tom", by: "Tom", ok: true, ts: t + 2 },
-    b4: { t: "Wizard", c: "spiele", von: "Jonathan", by: "Jonathan", ts: t + 3 },
-    b5: { t: "Christbaumkugeln", c: "deko", von: "Gunda", ts: t + 4 },
-    b6: { t: "Saunatücher", c: "sonst", von: "Tabea", by: "Tabea", ts: t + 5 } });
-  store.schreibe("essen", { d24: { abend: { was: "Raclette", info: "Vorweg Feldsalat mit Walnüssen\nZum Nachtisch Bratapfel mit Vanillesoße", wer: { Anja: true, Tom: true } } },
-                            d25: { frueh: { was: "Langes Frühstück", wer: { Cornelis: true } } } });
-  store.schreibe("zimmer", { z1: { a: "Tabea", b: "Tom" }, z2: { a: "Josephine", b: "Cornelis" } });
-  store.schreibe("ideen", { i1: { t: "Sauna-Abend im Haus", von: "Tom", ts: t, ja: { Tom: true, Tabea: true, Gunda: true } },
-                            i2: { t: "Winterwanderung ab Haustür", von: "Anja", ts: t + 1, ja: { Anja: true } } });
-  store.schreibe("eck", { anreise: "Beispiel: ab 16 Uhr", isst: { Tabea: "vegetarisch", Tom: "mag keinen Rosenkohl" } });
-  const alle = {}; LEUTE.forEach((n) => { alle[n] = true; });
-  store.schreibe("kosten", { k1: { t: "Einkauf am 23.12.", b: 18430, wer: "Anja", fuer: alle, ts: t },
-                             k2: { t: "Glühwein und Punsch", b: 3250, wer: "Tom", fuer: alle, ts: t + 1 },
-                             k3: { t: "Eintritt Laacher See, Führung", b: 2400, wer: "Jonathan", fuer: { Jonathan: true, Josephine: true, Cornelis: true }, ts: t + 2 } });
-  store.schreibe("wuensche", { w1: { t: "Ich hätte gern eine Liste für Spiele, die wir spielen wollen.", von: "Tabea", ts: t } });
-  store.schreibe("notizen", { n1: { t: "Wichteln: höchstens 20 Euro pro Geschenk.", von: "Josephine", ts: t },
-                              n2: { t: "Wer hat noch eine Lichterkette für den Baum?", von: "Gunda", ts: t + 1 } });
-  toast("Beispiele geladen. Sie liegen nur auf diesem Gerät.");
-});
-$("#demoLeeren").addEventListener("click", () => {
-  if (store.modus !== "demo") return;
-  ["bring", "essen", "zimmer", "ideen", "eck", "notizen", "autos", "kosten", "wuensche"].forEach((k) => store.schreibe(k, null));
-  toast("Alles geleert.");
-});
-
 zeichneWer();
 zeichneCountdown();
-baueKarte();
 store.start();
-let ersteFahrt = false;
-store.on(() => { if (!ersteFahrt && (store.live ? $("#status").dataset.s === "live" : true)) { ersteFahrt = true; setTimeout(fahre, 500); } });
-if (!store.live) { ersteFahrt = true; setTimeout(fahre, 500); }
-else setTimeout(() => { if (!ersteFahrt) { ersteFahrt = true; fahre(); } }, 4000);
 </script>
 </body>
 </html>
