@@ -603,14 +603,21 @@ const CONFIG = {
 
 /* Schlüssel aus dem Link lesen und auf diesem Gerät merken */
 let SCHLUESSEL = null;
+const schluesselImLink = () => /[#&]k=([A-Za-z0-9_-]{8,80})/.exec(location.hash);
 (function () {
-  const m = /[#&]k=([A-Za-z0-9_-]{8,80})/.exec(location.hash);
+  const m = schluesselImLink();
   if (m) SCHLUESSEL = m[1];
   try {
     if (m) localStorage.setItem("lindgruen-k", m[1]);
     else SCHLUESSEL = localStorage.getItem("lindgruen-k");
   } catch (e) {}
 })();
+/* Der Link aus der Gruppe wird in einen schon offenen Tab eingefügt: Dann ändert sich nur der Teil hinter dem #,
+   und der Browser lädt nicht neu. Nur bei einem neuen Schlüssel neu laden, nicht bei den Sprungmarken der Navigation. */
+window.addEventListener("hashchange", () => {
+  const m = schluesselImLink();
+  if (m && m[1] !== SCHLUESSEL) location.reload();
+});
 
 /* Namen, Orte, Adresse und Kontakt stehen NICHT in dieser Datei. Sie liegen als "stamm" in der Datenbank
    und werden erst geladen, wenn der Schlüssel aus dem Link stimmt. */
@@ -1331,9 +1338,11 @@ aktion($("#notizBtn"), null, () => {
 
 /* ---------- Kosten ---------- */
 const euro = (cent) => (cent / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
-function leseBetrag(text) {            // "12,50" oder "12.50" oder "1.234,50" -> Cent
+function leseBetrag(text) {            // "12,50" oder "12.50" oder "1.234,50" oder "1.850" -> Cent
   let t = String(text).replace(/[€\s]/g, "");
   if (/,/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+  // Punkt vor genau drei Ziffern und kein Komma: Tausenderpunkt ("1.850" sind 1850 Euro, nicht 1,85)
+  else if (/^[1-9]\d{0,2}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
   const n = Number(t);
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
 }
