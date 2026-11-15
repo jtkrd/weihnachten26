@@ -222,6 +222,9 @@ dialog .chip[aria-pressed="true"]{background:var(--tanne);border-color:var(--tan
 .dlg-fuss{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:22px}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--tanne);color:var(--schnee);padding:10px 12px 10px 18px;border-radius:12px;display:flex;align-items:center;gap:12px;z-index:50;max-width:calc(100vw - 24px);box-shadow:0 6px 24px rgba(31,59,45,.35)}
 .toast[hidden]{display:none}
+.leiste{position:fixed;left:50%;top:66px;transform:translateX(-50%);background:#FFF6D6;color:var(--tanne);border:2px solid var(--kerze);padding:9px 14px;border-radius:12px;display:flex;align-items:center;gap:12px;z-index:40;width:max-content;max-width:calc(100vw - 24px);font-weight:600;font-size:15px;box-shadow:0 6px 24px rgba(31,59,45,.25)}
+.leiste[hidden]{display:none}
+.leiste button{flex:none;background:var(--tanne);color:var(--schnee);border:0;border-radius:8px;padding:6px 12px;font-weight:600;min-height:36px}
 .toast button{background:transparent;border:1.5px solid var(--lind-tief);color:var(--lind);border-radius:8px;padding:6px 12px;font-weight:600;min-height:36px}
 
 .status{font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--lind-hell)}
@@ -529,6 +532,7 @@ footer.ende .wrap{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justif
 </footer>
 
 <dialog id="dlg" aria-labelledby="dlgTitel"></dialog>
+<div class="leiste" id="leiste" role="status" aria-live="polite" hidden><span id="leisteText"></span><button type="button" id="leisteBtn" hidden>Neu laden</button></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button type="button" id="toastBtn">Rückgängig</button></div>
 
 <script>
@@ -605,93 +609,186 @@ const neueId = () => "i" + Date.now().toString(36) + Math.random().toString(36).
 const eintraege = (o) => Object.entries(o || {}).filter(([, v]) => v && typeof v === "object");
 
 /* ---------- Speicher: Firebase (alle) oder localStorage (Demo) ---------- */
+/* Speicher.
+   Jede Änderung landet zuerst im Ausgangskorb (auch auf dem Gerät gesichert) und wird so lange
+   erneut gesendet, bis die Datenbank sie bestätigt hat. Angezeigt wird immer:
+   bestätigter Stand der Datenbank + alles, was noch im Ausgangskorb liegt.
+   So verschwindet kein Eintrag, wenn das Netz hakt oder die Verbindung neu aufgebaut wird. */
+const VERSION = 2;
 const store = (() => {
-  let state = {};
-  const horcher = [];
   // demo: keine Datenbank eingetragen | ohne: Datenbank da, aber Link ohne Schlüssel | sonst live
   const modus = !CONFIG.dbUrl ? "demo" : !SCHLUESSEL ? "ohne" : "live";
   const live = modus === "live";
   const basis = CONFIG.dbUrl.replace(/\/+$/, "") + "/raum/" + SCHLUESSEL;
   const url = (pfad) => basis + (pfad ? "/" + pfad : "") + ".json";
-  const LS = "lindgruen-demo-daten";
-  let status = modus === "live" ? "aus" : modus;
+  const LS_DEMO = "lindgruen-demo-daten", LS_KORB = "lindgruen-korb-" + SCHLUESSEL;
+  const horcher = [];
+  let server = {};        // letzter bestätigter Stand der Datenbank
+  let state = {};         // server + eigene Änderungen, die noch unterwegs sind
+  let korb = [];          // Ausgangskorb: [{ pfad, wert, art: "put" | "patch", ts }]
+  let status = live ? "aus" : modus;
+  let es = null, letztesSignal = 0, sendet = false, unterwegs = null, versuch = 0;
+  let wiederTimer = null, neuTimer = null, veraltet = false, versionGemeldet = false;
 
-  function setze(pfad, wert) {
-    const keys = String(pfad).split("/").filter(Boolean);
-    if (!keys.length) { state = (wert && typeof wert === "object") ? wert : {}; return; }
-    let o = state;
+  const kopie = (o) => (o === undefined ? null : JSON.parse(JSON.stringify(o)));
+  const teile = (pfad) => String(pfad).split("/").filter(Boolean);
+  function ohneNull(w) {              // wie die Datenbank: null-Felder und leere Objekte fallen weg
+    if (w === null || typeof w !== "object") return w;
+    const o = {};
+    for (const [k, v] of Object.entries(w)) { const x = ohneNull(v); if (x !== null && x !== undefined) o[k] = x; }
+    return Object.keys(o).length ? o : null;
+  }
+  function setze(wurzel, pfad, wert) { // gibt die (evtl. neue) Wurzel zurück
+    const keys = teile(pfad);
+    wert = ohneNull(wert);
+    if (!keys.length) return (wert && typeof wert === "object") ? wert : {};
+    let o = wurzel;
     for (let i = 0; i < keys.length - 1; i++) {
-      if (typeof o[keys[i]] !== "object" || o[keys[i]] === null) o[keys[i]] = {};
+      if (typeof o[keys[i]] !== "object" || o[keys[i]] === null) { if (wert === null) return wurzel; o[keys[i]] = {}; }
       o = o[keys[i]];
     }
     const k = keys[keys.length - 1];
     if (wert === null || wert === undefined) delete o[k]; else o[k] = wert;
+    return wurzel;
   }
-  function melde() { horcher.forEach((f) => f(state, status)); }
-  function setStatus(s) { if (s !== status) { status = s; melde(); } }
+  function wende(wurzel, op) {
+    if (op.art === "patch") {
+      for (const [k, v] of Object.entries(op.wert || {})) wurzel = setze(wurzel, op.pfad + "/" + k, kopie(v));
+      return wurzel;
+    }
+    return setze(wurzel, op.pfad, kopie(op.wert));
+  }
+  function baue() { let s = kopie(server) || {}; for (const op of korb) s = wende(s, op); state = s; }
+  function melde() { horcher.forEach((f) => f(state, status, korb.length)); }
+  function merkeKorb() { try { localStorage.setItem(LS_KORB, JSON.stringify(korb)); } catch (e) {} }
+  function ueberlappt(a, b) {
+    a = teile(a).join("/"); b = teile(b).join("/");
+    return !a || !b || a === b || a.startsWith(b + "/") || b.startsWith(a + "/");
+  }
 
-  let es = null;
+  /* ----- Empfangen: Live-Verbindung zur Datenbank ----- */
+  function vomServer(pfad, daten, alsPatch) {
+    letztesSignal = Date.now();
+    if (alsPatch) for (const [k, v] of Object.entries(daten || {})) server = setze(server, pfad + "/" + k, v);
+    else server = setze(server, pfad, daten);
+    if (unterwegs && ueberlappt(pfad, unterwegs.pfad)) unterwegs.echo = true;
+    status = "live"; baue(); melde();
+    pruefeVersion();
+  }
   function verbinde() {
-    if (status === "falsch") return;
-    if (es) es.close();
-    es = new EventSource(url(""));
-    es.addEventListener("put", (e) => {
-      const d = JSON.parse(e.data); setze(d.path, d.data); status = "live"; melde();
-    });
-    es.addEventListener("patch", (e) => {
-      const d = JSON.parse(e.data);
-      for (const [k, v] of Object.entries(d.data || {})) setze(d.path + "/" + k, v);
-      status = "live"; melde();
-    });
-    es.addEventListener("cancel", () => setStatus("aus"));
-    es.onerror = () => { if (status !== "falsch") setStatus("aus"); };   // EventSource verbindet sich selbst neu
+    if (!live || status === "falsch") return;
+    clearTimeout(neuTimer);
+    if (es) { es.onerror = null; es.close(); }
+    const meins = es = new EventSource(url(""));
+    letztesSignal = Date.now();        // Schonfrist für den Aufbau
+    meins.addEventListener("put", (e) => { if (es === meins) { const d = JSON.parse(e.data); vomServer(d.path, d.data, false); } });
+    meins.addEventListener("patch", (e) => { if (es === meins) { const d = JSON.parse(e.data); vomServer(d.path, d.data, true); } });
+    meins.addEventListener("keep-alive", () => { if (es === meins) letztesSignal = Date.now(); });
+    meins.addEventListener("cancel", () => { if (es === meins) pruefe(); });
+    meins.addEventListener("auth_revoked", () => { if (es === meins) pruefe(); });
+    meins.onerror = () => {
+      if (es !== meins) return;
+      if (status === "live") { status = "aus"; melde(); }
+      // readyState 2 = endgültig zu: dann baut der Browser nicht selbst neu auf
+      if (meins.readyState === 2) neuTimer = setTimeout(verbinde, 3000);
+    };
   }
   function falscherSchluessel() {
-    if (es) es.close();
+    if (es) { es.onerror = null; es.close(); }
     try { localStorage.removeItem("lindgruen-k"); } catch (e) {}
-    setStatus("falsch");
+    status = "falsch"; melde();
+  }
+  function pruefe() {                  // passt der Schlüssel? Die Datenbank antwortet sonst mit 401.
+    fetch(url("") + "?shallow=true", { cache: "no-store" })
+      .then((r) => (r.status === 401 || r.status === 403) ? falscherSchluessel() : verbinde())
+      .catch(() => verbinde());
+  }
+  function auffrischen() {             // Gerät war im Hintergrund oder offline: Verbindung prüfen
+    if (!live || status === "falsch") return;
+    if (status !== "live" || Date.now() - letztesSignal > 40000) verbinde();
+    versuch = 0; sende();
+  }
+  function pruefeVersion() {
+    const v = Number((server.meta || {}).v) || 0;
+    if (v > VERSION && !veraltet) { veraltet = true; melde(); }
+    else if (v < VERSION && !versionGemeldet) { versionGemeldet = true; schreibe("meta/v", VERSION); }
   }
 
-  async function schreibe(pfad, wert) {
-    setze(pfad, wert); melde();
-    if (modus === "demo") {
-      try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
-      return true;
+  /* ----- Senden: Ausgangskorb der Reihe nach abarbeiten, bei Fehlern wiederholen ----- */
+  async function sende() {
+    if (sendet || !live || status === "falsch") return;
+    sendet = true; clearTimeout(wiederTimer);
+    while (korb.length) {
+      const op = unterwegs = korb[0];
+      op.echo = false;
+      let r = null;
+      const body = JSON.stringify(op.wert);
+      const anfrage = (keepalive) => fetch(url(op.pfad),
+        op.art === "patch" ? { method: "PATCH", body, keepalive }
+        : op.wert === null ? { method: "DELETE", keepalive }
+        : { method: "PUT", body, keepalive });
+      try {
+        r = await anfrage(body.length < 60000);        // keepalive: Anfrage überlebt das Schließen der Seite
+      } catch (e) {
+        try { r = await anfrage(false); } catch (x) { r = null; }   // manche Browser mögen keepalive nicht
+      }
+      unterwegs = null;
+      if (r && r.ok) {
+        // Bestätigt. Kam inzwischen schon eine Meldung der Datenbank zu diesem Pfad, gilt deren Stand.
+        if (!op.echo) server = wende(server, op);
+        korb.shift(); merkeKorb(); versuch = 0; baue(); melde();
+        continue;
+      }
+      if (r && (r.status === 401 || r.status === 403)) { sendet = false; falscherSchluessel(); return; }
+      if (r && r.status >= 400 && r.status < 500 && r.status !== 408 && r.status !== 429) {
+        korb.shift(); merkeKorb(); baue(); melde();   // die Datenbank lehnt diese eine Änderung ab
+        toast("Eine Änderung hat die Datenbank abgelehnt. Bitte noch mal eintragen.");
+        continue;
+      }
+      versuch++;                                       // Netz- oder Serverfehler: gleich noch mal
+      wiederTimer = setTimeout(sende, Math.min(15000, 600 * 2 ** Math.min(versuch, 5)));
+      break;
     }
-    if (!live) return false;
-    try {
-      const r = await fetch(url(pfad), wert === null
-        ? { method: "DELETE" }
-        : { method: "PUT", body: JSON.stringify(wert) });
-      if (r.status === 401 || r.status === 403) { falscherSchluessel(); return false; }
-      if (!r.ok) throw new Error(r.status);
-      return true;
-    } catch (e) {
-      toast("Nicht gespeichert. Prüf die Internetverbindung und versuch es noch mal.");
-      setStatus("aus");
-      verbinde();   // holt den echten Stand zurück
-      return false;
-    }
+    sendet = false; melde();
   }
+
+  function lege(op) {
+    if (modus === "demo") {
+      server = wende(server, op); baue(); melde();
+      try { localStorage.setItem(LS_DEMO, JSON.stringify(server)); } catch (e) {}
+      return Promise.resolve(true);
+    }
+    if (!live || status === "falsch") return Promise.resolve(false);
+    korb.push(op); merkeKorb(); baue(); melde(); sende();
+    return Promise.resolve(true);
+  }
+  /* schreibe: ersetzt den Wert an einem Pfad (null löscht). aendere: ändert nur die genannten Felder. */
+  function schreibe(pfad, wert) { return lege({ pfad, wert: kopie(wert), art: "put", ts: Date.now() }); }
+  function aendere(pfad, felder) { return lege({ pfad, wert: kopie(felder), art: "patch", ts: Date.now() }); }
 
   function start() {
     if (live) {
-      // Erst prüfen, ob der Schlüssel passt: die Datenbank antwortet sonst mit 401.
-      fetch(url("") + "?shallow=true")
-        .then((r) => (r.status === 401 || r.status === 403) ? falscherSchluessel() : verbinde())
-        .catch(() => verbinde());
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden && status === "aus") verbinde();
-      });
+      try {                             // liegengebliebene Änderungen vom letzten Besuch nachreichen
+        const alt = JSON.parse(localStorage.getItem(LS_KORB)) || [];
+        korb = alt.filter((o) => o && typeof o.pfad === "string" && (o.art === "put" || o.art === "patch") && Date.now() - (o.ts || 0) < 3 * 864e5);
+      } catch (e) { korb = []; }
+      baue();
+      pruefe(); sende();
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) auffrischen(); else { versuch = 0; sende(); } });
+      window.addEventListener("pageshow", auffrischen);
+      window.addEventListener("online", auffrischen);
+      // Wachhund: Die Datenbank meldet sich mindestens alle 30 Sekunden. Bleibt das aus, hängt die Leitung.
+      setInterval(() => { if (!document.hidden && status !== "falsch" && Date.now() - letztesSignal > 75000) verbinde(); }, 15000);
     } else if (modus === "demo") {
-      try { state = JSON.parse(localStorage.getItem(LS)) || {}; } catch (e) { state = {}; }
+      try { server = JSON.parse(localStorage.getItem(LS_DEMO)) || {}; } catch (e) { server = {}; }
+      baue();
       window.addEventListener("storage", (e) => {
-        if (e.key === LS) { try { state = JSON.parse(e.newValue) || {}; } catch (x) {} melde(); }
+        if (e.key === LS_DEMO) { try { server = JSON.parse(e.newValue) || {}; } catch (x) {} baue(); melde(); }
       });
     }
     melde();
   }
-  return { start, schreibe, live, modus, get: () => state, on: (f) => horcher.push(f) };
+  return { start, schreibe, aendere, live, modus, get: () => state, on: (f) => horcher.push(f), veraltet: () => veraltet };
 })();
 
 /* ---------- Wer bin ich ---------- */
@@ -828,7 +925,7 @@ function zeichneBring() {
 }
 function bringZeile(id, v) {
   const pfad = "bring/" + id;
-  const setz = (teil) => store.schreibe(pfad, Object.assign({}, v, teil, { ok: null, by: null, dort: null }, teil));
+  const setz = (teil) => store.aendere(pfad, Object.assign({ ok: null, by: null, dort: null }, teil));
   const wer = (n) => setz({ by: n });
   const extra = [];
   if (!v.dort) extra.push(["Kaufen wir dort", () => setz({ dort: true })]);
@@ -1319,21 +1416,37 @@ $("#nochmal").addEventListener("click", fahre);
 function zeichneAlles() {
   zeichneBring(); zeichneEssen(); zeichneZimmer(); zeichneIdeen(); zeichneInfos(); zeichneAutos(); zeichneKosten(); zeichneWuensche();
 }
-store.on((state, status) => {
+let leisteTimer = null, leisteWartet = "";
+store.on((state, status, offen) => {
   zeichneAlles();
   const s = $("#status");
   const zu = status === "ohne" || status === "falsch";
   s.dataset.s = status === "live" ? "live" : status === "demo" ? "demo" : "aus";
-  s.textContent = status === "live" ? "Verbunden, alles wird gespeichert"
+  s.textContent = status === "live" ? (offen ? "Speichert …" : "Verbunden, alles gespeichert")
     : status === "demo" ? "Demo-Modus, nur auf diesem Gerät"
-    : zu ? "Link unvollständig" : "Keine Verbindung zur Datenbank";
+    : zu ? "Link unvollständig"
+    : offen ? "Keine Verbindung, Änderungen warten" : "Keine Verbindung, neuer Versuch läuft";
   $("#demoHinweis").hidden = status !== "demo";
   document.body.classList.toggle("gesperrt", zu);
   $("#sperre").hidden = !zu;
   $("#sperre").textContent = status === "falsch"
     ? "Dieser Link passt nicht mehr. Frag Jonathan nach dem aktuellen Link für die Seite."
     : zu ? "Hier fehlt der geheime Teil des Links. Öffne die Seite bitte über den Link, den Jonathan in die Gruppe geschickt hat. Danach merkt sich dein Gerät den Zugang." : "";
+  // Leiste oben: neue Version der Seite, oder Änderungen, die länger als ein paar Sekunden warten
+  const leiste = $("#leiste");
+  if (store.veraltet()) {
+    clearTimeout(leisteTimer); leisteTimer = null;
+    $("#leisteText").textContent = "Es gibt eine neuere Fassung dieser Seite.";
+    $("#leisteBtn").hidden = false; leiste.hidden = false;
+  } else if (offen && !zu) {
+    leisteWartet = (offen === 1 ? "1 Änderung ist" : offen + " Änderungen sind") + " noch nicht gespeichert. Die Seite versucht es von selbst weiter, lass sie bitte offen.";
+    if (!leiste.hidden) $("#leisteText").textContent = leisteWartet;
+    else if (!leisteTimer) leisteTimer = setTimeout(() => { leisteTimer = null; $("#leisteText").textContent = leisteWartet; $("#leisteBtn").hidden = true; leiste.hidden = false; }, 3000);
+  } else {
+    clearTimeout(leisteTimer); leisteTimer = null; leiste.hidden = true;
+  }
 });
+$("#leisteBtn").addEventListener("click", () => location.reload());
 
 /* ---------- nur im Demo-Modus: Beispiele zum Ausprobieren ---------- */
 $("#demoFuellen").addEventListener("click", () => {
